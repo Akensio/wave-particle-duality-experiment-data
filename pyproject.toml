@@ -1,0 +1,21 @@
+[tool.poetry]
+package-mode = false
+name = "paul-trap-experiment-data"
+version = "0.1.0"
+description = ""
+authors = ["Gadi B <gadibessudo@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pandas = "^2.2.3"
+openpyxl = "^3.1.5"
+scipy = "^1.14.1"
+matplotlib = "^3.10.0"
+ipython = "^8.30.0"
+numpy = "^2.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
