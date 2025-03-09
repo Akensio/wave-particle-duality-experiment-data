@@ -6,19 +6,21 @@ This script analyzes experimental data from a black body radiation spectrum expe
 and fits it to Planck's law to determine the temperature of the black body.
 """
 
+from typing import Optional, Tuple, List, Dict, Any
 import numpy as np
+from numpy.typing import NDArray
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import constants
-from scipy.optimize import curve_fit
 import os
+from utils.odr_fit import perform_odr_fit, plot_odr_fit
 
 datafile = os.path.join(
     os.path.dirname(__file__), "data", "black_body_radiation_spectrum.xlsx"
 )
 
 
-def main():
+def main() -> None:
     """Main function to run the analysis"""
     ############################################################
     # ROTATION RATIO
@@ -26,7 +28,7 @@ def main():
     # 1) Load the sheet
     rotation_df = pd.read_excel(datafile, sheet_name="rotation_ratio")
 
-    # 2) Extract the single column
+    # 2) Extract the single column (dropping any NaNs, if they exist)
     col_name = "small_circle_angle_change_per_large_circle_full_rotation-rad"
     rotation_measurements_in_rad = rotation_df[col_name].values
 
@@ -79,10 +81,39 @@ def main():
     resistance_df = pd.read_excel(datafile, sheet_name="lightbulb_four_wires")
     
     # 2) Extract the columns
-    voltage_in_mV = resistance_df["voltage-mV"].values
-    current_in_mA = resistance_df["current-mA"].values
+    voltage_in_mV: NDArray[np.float64] = resistance_df["voltage-mV"].values
+    current_in_mA: NDArray[np.float64] = resistance_df["current-mA"].values
     
-
+    # 3) Compute resistance and error using ODR fit
+    # We assume 1% uncertainty in both current and voltage measurements
+    current_err_in_mA: NDArray[np.float64] = current_in_mA * 0.01
+    voltage_err_in_mV: NDArray[np.float64] = voltage_in_mV * 0.01
+    
+    # Perform ODR fit (slope = resistance in Ohms since V/I = R)
+    resistance_in_ohms, resistance_error_in_ohms, offset_in_mV, offset_error_in_mV = perform_odr_fit(
+        current_in_mA, voltage_in_mV, current_err_in_mA, voltage_err_in_mV
+    )
+    
+    # 4) Print results
+    print("\nResistance Analysis:")
+    print(f"    Resistance = {resistance_in_ohms:.3f} ± {resistance_error_in_ohms:.3f} Ω")
+    if abs(offset_in_mV) > 1e-3:  # Only show offset if it's non-zero
+        print(f"    Offset voltage = {offset_in_mV:.3f} ± {offset_error_in_mV:.3f} mV")
+    
+    # 5) Create plot
+    fig = plot_odr_fit(
+        current_in_mA, voltage_in_mV, 
+        resistance_in_ohms, offset_in_mV, 
+        resistance_error_in_ohms, offset_error_in_mV,
+        current_err_in_mA, voltage_err_in_mV,
+        x_label="Current (mA)", 
+        y_label="Voltage (mV)",
+        title="Resistance Measurement (Four-Wire Method)"
+    )
+    
+    # Save the plot
+    plt.savefig("resistance_fit.png", dpi=300, bbox_inches='tight')
+    plt.close(fig)
 
 
 if __name__ == "__main__":
