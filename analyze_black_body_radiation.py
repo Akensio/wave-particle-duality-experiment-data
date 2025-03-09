@@ -51,16 +51,26 @@ def main():
     
     # 2) Extract the single column
     col_name = "starting_angle-rad"
-    starting_angle_measurements_in_rad = starting_angle_df[col_name].values
+    unadjusted_starting_angle_measurements_in_rad = starting_angle_df[col_name].values
     
     # 3) Compute mean + error (with std dev and SEM)
-    starting_angle_in_rad = np.mean(starting_angle_measurements_in_rad)
-    starting_angle_error_in_rad = np.std(starting_angle_measurements_in_rad, ddof=1) / np.sqrt(len(starting_angle_measurements_in_rad))
+    unadjusted_starting_angle_in_rad = np.mean(unadjusted_starting_angle_measurements_in_rad)
+    unadjusted_starting_angle_error_in_rad = np.std(unadjusted_starting_angle_measurements_in_rad, ddof=1) / np.sqrt(len(unadjusted_starting_angle_measurements_in_rad))
+    
+    # 4) Multiply by the rotation ratio to get the adjusted angle
+    starting_angle_in_rad = unadjusted_starting_angle_in_rad * angle_ratio
+    
+    # 5) Propagate errors (using the formula for multiplication of independent variables)
+    # For z = x * y, the relative error is: (Δz/z)² = (Δx/x)² + (Δy/y)²
+    # So Δz = z * sqrt((Δx/x)² + (Δy/y)²)
+    relative_error_squared = (unadjusted_starting_angle_error_in_rad/unadjusted_starting_angle_in_rad)**2 + (angle_ratio_error/angle_ratio)**2
+    starting_angle_error_in_rad = starting_angle_in_rad * np.sqrt(relative_error_squared)
     
     print("\nStarting Angle Analysis:")
-    print(f"    Mean starting angle = {starting_angle_in_rad:.3f} rad")
-    print(f"    Standard error = {starting_angle_error_in_rad:.3f} rad")
-    print(f"    Starting angle = {starting_angle_in_rad:.3f} ± {starting_angle_error_in_rad:.3f} rad")
+    print(f"    Mean starting angle (unadjusted - measured in units of the small circle) = {unadjusted_starting_angle_in_rad:.3f} rad")
+    print(f"    Standard error (unadjusted) = {unadjusted_starting_angle_error_in_rad:.3f} rad")
+    print(f"    Starting angle (unadjusted) = {unadjusted_starting_angle_in_rad:.3f} ± {unadjusted_starting_angle_error_in_rad:.3f} rad")
+    print(f"    Starting angle (adjusted) = {starting_angle_in_rad:.3f} ± {starting_angle_error_in_rad:.3f} rad")
 
     ############################################################
     # RESISTANCE MEASUREMENTS
