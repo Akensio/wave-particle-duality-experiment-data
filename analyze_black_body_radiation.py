@@ -55,30 +55,16 @@ def main() -> None:
 
     # 2) Extract the single column
     col_name: str = "starting_angle-rad"
-    unadjusted_starting_angle_measurements_in_rad: NDArray[np.float64] = starting_angle_df[col_name].values
+    starting_angle_measurements_in_rad: NDArray[np.float64] = starting_angle_df[col_name].values
 
     # 3) Compute mean + error (with std dev and SEM)
-    unadjusted_starting_angle_in_rad: float = np.mean(unadjusted_starting_angle_measurements_in_rad)
-    unadjusted_starting_angle_error_in_rad: float = np.std(unadjusted_starting_angle_measurements_in_rad, ddof=1) / np.sqrt(
-        len(unadjusted_starting_angle_measurements_in_rad)
+    STARTING_ANGLE_IN_RAD: float = np.mean(starting_angle_measurements_in_rad)
+    STARTING_ANGLE_ERROR_IN_RAD: float = np.std(starting_angle_measurements_in_rad, ddof=1) / np.sqrt(
+        len(starting_angle_measurements_in_rad)
     )
 
-    # 4) Multiply by the rotation ratio to get the adjusted angle
-    STARTING_ANGLE_IN_RAD: float = unadjusted_starting_angle_in_rad / ANGLE_RATIO
-
-    # 5) Propagate errors (using the formula for division of independent variables)
-    # For z = x / y, the relative error is: (Δz/z)² = (Δx/x)² + (Δy/y)²
-    # So Δz = z * sqrt((Δx/x)² + (Δy/y)²)
-    relative_error_squared: float = (unadjusted_starting_angle_error_in_rad / unadjusted_starting_angle_in_rad) ** 2 + (
-        ANGLE_RATIO_ERROR / ANGLE_RATIO
-    ) ** 2
-    STARTING_ANGLE_ERROR_IN_RAD: float = STARTING_ANGLE_IN_RAD * np.sqrt(relative_error_squared)
-
     print("\nStarting Angle Analysis:")
-    print(f"    Mean starting angle (unadjusted - measured in units of the small circle) = {unadjusted_starting_angle_in_rad:.3f} rad")
-    print(f"    Standard error (unadjusted) = {unadjusted_starting_angle_error_in_rad:.3f} rad")
-    print(f"    Starting angle (unadjusted) = {unadjusted_starting_angle_in_rad:.3f} ± {unadjusted_starting_angle_error_in_rad:.3f} rad")
-    print(f"    Starting angle (adjusted) = {STARTING_ANGLE_IN_RAD:.3f} ± {STARTING_ANGLE_ERROR_IN_RAD:.3f} rad")
+    print(f"    Starting angle = {STARTING_ANGLE_IN_RAD:.3f} ± {STARTING_ANGLE_ERROR_IN_RAD:.3f} rad")
 
     ############################################################
     # RESISTANCE MEASUREMENTS
@@ -173,13 +159,13 @@ def main() -> None:
     rho_scaled: NDArray[np.float64] = resistivity_in_ohm_m * 1e8  # Convert to units of 10^-8 ohm*m
     rho_scaled_error: NDArray[np.float64] = resistivity_error_in_ohm_m * 1e8
     
-    temperature_in_K: NDArray[np.float64] = 103 + 38.1 * rho_scaled - 0.095 * rho_scaled**2 + 2.48e-4 * rho_scaled**3
+    TEMPERATURE_IN_K: NDArray[np.float64] = 103 + 38.1 * rho_scaled - 0.095 * rho_scaled**2 + 2.48e-4 * rho_scaled**3
     
     # Error propagation for temperature
     # For T = 103 + 38.1*rho - 0.095*rho^2 + 2.48e-4*rho^3
     # dT/drho = 38.1 - 2*0.095*rho + 3*2.48e-4*rho^2
     dT_drho: NDArray[np.float64] = 38.1 - 2 * 0.095 * rho_scaled + 3 * 2.48e-4 * rho_scaled**2
-    temperature_error_in_K: NDArray[np.float64] = np.abs(dT_drho * rho_scaled_error)
+    TEMPERATURE_ERROR_IN_K: NDArray[np.float64] = np.abs(dT_drho * rho_scaled_error)
     
     # 6) Extract the max intensity angle measurements
     max_intensity_angle_1: NDArray[np.float64] = max_intensity_df["max_intensity_angle_measurement_1-rad"].values
