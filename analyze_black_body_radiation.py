@@ -166,6 +166,10 @@ def main() -> None:
     # dT/drho = 38.1 - 2*0.095*rho + 3*2.48e-4*rho^2
     dT_drho: NDArray[np.float64] = 38.1 - 2 * 0.095 * rho_scaled + 3 * 2.48e-4 * rho_scaled**2
     TEMPERATURE_ERROR_IN_K: NDArray[np.float64] = np.abs(dT_drho * rho_scaled_error)
+
+    print("\nTemperature Analysis:")
+    for i in range(len(TEMPERATURE_IN_K)):
+        print(f"    Temperature = {TEMPERATURE_IN_K[i]:.6f} ± {TEMPERATURE_ERROR_IN_K[i]:.6f} K")
     
     # 6) Extract the max intensity angle measurements
     max_intensity_angle_1: NDArray[np.float64] = max_intensity_df["max_intensity_angle_measurement_1-rad"].values
@@ -239,7 +243,7 @@ def main() -> None:
     )
     
     # Calculate wavelength in nm
-    wavelength_in_nm: NDArray[np.float64] = 3000 / denominator
+    WAVELENGTH_IN_NM: NDArray[np.float64] = 3000 / denominator
     
     # Error propagation for wavelength
     # For λ = 3000/√(polynomial(n))
@@ -259,11 +263,13 @@ def main() -> None:
     wavelength_derivative: NDArray[np.float64] = -3000 * denominator_derivative / denominator**2
     
     # Finally, calculate the wavelength error
-    wavelength_error_in_nm: NDArray[np.float64] = np.abs(wavelength_derivative * refraction_index_error)
+    WAVELENGTH_ERROR_IN_NM: NDArray[np.float64] = np.abs(wavelength_derivative * refraction_index_error)
 
     print("\nWavelength Analysis:")
-    for i in range(len(wavelength_in_nm)):
-        print(f"    Wavelength = {wavelength_in_nm[i]:.6f} ± {wavelength_error_in_nm[i]:.6f} nm")
+    for i in range(len(WAVELENGTH_IN_NM)):
+        print(f"    Wavelength = {WAVELENGTH_IN_NM[i]:.6f} ± {WAVELENGTH_ERROR_IN_NM[i]:.6f} nm")
+
+    
 
 
 if __name__ == "__main__":
