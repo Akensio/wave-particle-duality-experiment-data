@@ -5,17 +5,16 @@ A clear, straightforward implementation of Orthogonal Distance Regression (ODR)
 for fitting data with uncertainties in both x and y variables.
 """
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
+
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.figure import Figure
 from numpy.typing import NDArray
 from scipy import odr
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 
 
-def linear_function(
-    params: NDArray[np.float64], x: NDArray[np.float64]
-) -> NDArray[np.float64]:
+def linear_function(params: NDArray[np.float64], x: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Simple linear function: y = m*x + b
 
@@ -114,9 +113,7 @@ def plot_odr_fit(
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # Plot data points with error bars
-    ax.errorbar(
-        x, y, xerr=x_err, yerr=y_err, fmt="o", label="Data", color="blue", markersize=5
-    )
+    ax.errorbar(x, y, xerr=x_err, yerr=y_err, fmt="o", label="Data", color="blue", markersize=5)
 
     # Plot fit line
     x_range = np.linspace(min(x), max(x), 100)
