@@ -188,47 +188,49 @@ def main() -> None:
     
     # Calculate the mean angle for each measurement
     max_intensity_angles: NDArray[np.float64] = np.column_stack([max_intensity_angle_1, max_intensity_angle_2, max_intensity_angle_3])
-    unadjusted_mean_max_intensity_angle_in_rad: NDArray[np.float64] = np.mean(max_intensity_angles, axis=1)
+    mean_max_intensity_angle_in_rad: NDArray[np.float64] = np.mean(max_intensity_angles, axis=1)
     
     # Calculate the standard error of the mean for each measurement
-    unadjusted_max_intensity_angle_error_in_rad: NDArray[np.float64] = np.std(max_intensity_angles, axis=1, ddof=1) / np.sqrt(3)
+    max_intensity_angle_error_in_rad: NDArray[np.float64] = np.std(max_intensity_angles, axis=1, ddof=1) / np.sqrt(3)
 
+    # 7) Calculate the refraction index using the formula from the lab manual
+    # n = sqrt((1.1547*sin((Init - Angle)/Ratio) + 0.5)^2 + 0.75)
+    # Ignoring the filter part as requested
     
+    # Calculate the term inside the sin function: (Init - Angle)/Ratio
+    # Note: We're using the unadjusted angles directly as they are already in the correct form
+    inner_term: NDArray[np.float64] = (STARTING_ANGLE_IN_RAD - mean_max_intensity_angle_in_rad) / ANGLE_RATIO
     
-    # # 7) Print results
-    # print("\nMaximum Intensity Wavelength Analysis:")
-    # print("Measurement | Voltage (V) | Current (A) | Resistance (Ω) | Resistivity (10^-8 Ω·m) | Temperature (K) | Max Intensity Angle (rad)")
-    # print("-" * 110)
+    # Calculate the sin term: 1.1547*sin(inner_term) + 0.5
+    sin_term: NDArray[np.float64] = 1.1547 * np.sin(inner_term) + 0.5
     
-    # for i in range(len(voltage_in_V)):
-    #     print(f"{i+1:^11} | {voltage_in_V[i]:^11.3f} | {current_in_A[i]:^11.3f} | {resistance_in_ohms[i]:^14.3f} | {rho_scaled[i]:^23.3f} | {temperature_in_K[i]:^15.1f} | {mean_max_intensity_angle[i]:^24.3f}")
+    # Calculate the refraction index: sqrt(sin_term^2 + 0.75)
+    refraction_index: NDArray[np.float64] = np.sqrt(sin_term**2 + 0.75)
     
-    # print("\nDetailed Results with Errors:")
-    # for i in range(len(voltage_in_V)):
-    #     print(f"\nMeasurement {i+1}:")
-    #     print(f"    Voltage = {voltage_in_V[i]:.3f} ± {voltage_error_in_V[i]:.3f} V")
-    #     print(f"    Current = {current_in_A[i]:.3f} ± {current_error_in_A[i]:.3f} A")
-    #     print(f"    Resistance = {resistance_in_ohms[i]:.3f} ± {resistance_error_in_ohms[i]:.3f} Ω")
-    #     print(f"    Resistivity = {rho_scaled[i]:.3f} ± {rho_scaled_error[i]:.3f} × 10^-8 Ω·m")
-    #     print(f"    Temperature = {temperature_in_K[i]:.1f} ± {temperature_error_in_K[i]:.1f} K")
-    #     print(f"    Max Intensity Angle = {mean_max_intensity_angle[i]:.3f} ± {max_intensity_angle_error[i]:.3f} rad")
+    # Error propagation
+    # For n = sqrt((1.1547*sin((Init - Angle)/Ratio) + 0.5)^2 + 0.75)
     
-    # # 8) Create a plot of temperature vs. max intensity angle
-    # plt.figure(figsize=(10, 6))
-    # plt.errorbar(temperature_in_K, mean_max_intensity_angle, 
-    #             xerr=temperature_error_in_K, yerr=max_intensity_angle_error,
-    #             fmt='o', capsize=5, markersize=8, elinewidth=1, label='Measurements')
+    # For inner_term = (STARTING_ANGLE_IN_RAD - mean_max_intensity_angle_in_rad) / ANGLE_RATIO
+    # The error comes from STARTING_ANGLE_IN_RAD, mean_max_intensity_angle_in_rad, and ANGLE_RATIO
+    inner_term_error: NDArray[np.float64] = np.sqrt(
+        (STARTING_ANGLE_ERROR_IN_RAD / ANGLE_RATIO)**2 + 
+        (max_intensity_angle_error_in_rad / ANGLE_RATIO)**2 + 
+        ((STARTING_ANGLE_IN_RAD - mean_max_intensity_angle_in_rad) * ANGLE_RATIO_ERROR / ANGLE_RATIO**2)**2
+    )
     
-    # plt.xlabel('Temperature (K)')
-    # plt.ylabel('Maximum Intensity Angle (rad)')
-    # plt.title('Maximum Intensity Angle vs. Temperature')
-    # plt.grid(True, alpha=0.3)
-    # plt.legend()
+    # For sin_term = 1.1547 * np.sin(inner_term) + 0.5
+    # The derivative of sin(x) is cos(x)
+    sin_term_error: NDArray[np.float64] = 1.1547 * np.abs(np.cos(inner_term) * inner_term_error)
     
-    # plt.savefig("max_intensity_vs_temperature.png", dpi=300, bbox_inches="tight")
-    # plt.close()
+    # For refraction_index = np.sqrt(sin_term**2 + 0.75)
+    # The derivative of sqrt(x) is 1/(2*sqrt(x))
+    # The derivative of sin_term**2 + 0.75 with respect to sin_term is 2*sin_term
+    # Therefore Δn = 1/(2*sqrt(sin_term**2 + 0.75)) * (2*sin_term) * Δsin_term = sin_term * Δsin_term / refraction_index
+    refraction_index_error: NDArray[np.float64] = np.abs(sin_term * sin_term_error / refraction_index)
 
-
+    print("\nRefraction Index Analysis:")
+    for i in range(len(refraction_index)):
+        print(f"    Refraction index = {refraction_index[i]:.6f} ± {refraction_index_error[i]:.6f}")
 
 
 if __name__ == "__main__":
