@@ -232,6 +232,53 @@ def main() -> None:
     for i in range(len(refraction_index)):
         print(f"    Refraction index = {refraction_index[i]:.6f} ± {refraction_index_error[i]:.6f}")
 
+    # 8) Calculate wavelengths using the formula from equation (2.12)
+    # λ = 3000/√(A + Bn + Cn² + Dn³ + En⁴ + Fn⁵ + Gn⁶ + Hn⁷ + In⁸)
+    
+    # Define the coefficients from the table
+    A = -49852133
+    B = 86092018.9
+    C = -29983328.35
+    D = -14354236.56
+    E = 835425.05
+    F = 5647432.02
+    G = 1863438.86
+    H = -2719226.18
+    I = 574967.82
+    
+    # Calculate the denominator polynomial for each refraction index
+    n = refraction_index
+    denominator: NDArray[np.float64] = np.sqrt(
+        A + B*n + C*n**2 + D*n**3 + E*n**4 + F*n**5 + G*n**6 + H*n**7 + I*n**8
+    )
+    
+    # Calculate wavelength in nm
+    wavelength_in_nm: NDArray[np.float64] = 3000 / denominator
+    
+    # Error propagation for wavelength
+    # For λ = 3000/√(polynomial(n))
+    # Δλ = dλ/dn * Δn
+    # We need dλ/dn
+    
+    # First, calculate d(denominator)/dn
+    # d/dn[√(A + Bn + Cn² + ...)] = (1/2)(A + Bn + Cn² + ...)^(-1/2) * (B + 2Cn + 3Dn² + ...) = 
+    # (B + 2Cn + 3Dn² + ...)/(2*sqrt(A + Bn + Cn² + ...)) = (B + 2Cn + 3Dn² + ...)/(2*denominator)
+    polynomial_derivative: NDArray[np.float64] = (
+        B + 2*C*n + 3*D*n**2 + 4*E*n**3 + 5*F*n**4 + 6*G*n**5 + 7*H*n**6 + 8*I*n**7
+    )
+    
+    denominator_derivative: NDArray[np.float64] = 0.5 * polynomial_derivative / denominator
+    
+    # Now calculate dλ/dn = -3000 * (denominator)^(-2) * d(denominator)/dn
+    wavelength_derivative: NDArray[np.float64] = -3000 * denominator_derivative / denominator**2
+    
+    # Finally, calculate the wavelength error
+    wavelength_error_in_nm: NDArray[np.float64] = np.abs(wavelength_derivative * refraction_index_error)
+
+    print("\nWavelength Analysis:")
+    for i in range(len(wavelength_in_nm)):
+        print(f"    Wavelength = {wavelength_in_nm[i]:.6f} ± {wavelength_error_in_nm[i]:.6f} nm")
+
 
 if __name__ == "__main__":
     main()
