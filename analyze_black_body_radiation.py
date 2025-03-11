@@ -269,7 +269,68 @@ def main() -> None:
     for i in range(len(WAVELENGTH_IN_NM)):
         print(f"    Wavelength = {WAVELENGTH_IN_NM[i]:.6f} ± {WAVELENGTH_ERROR_IN_NM[i]:.6f} nm")
 
+    ############################################################
+    # INVERSE TEMPERATURE AND WIEN'S LAW ANALYSIS
+    ############################################################
+    # Calculate 1/T and its error
+    INVERSE_TEMPERATURE_IN_K_INVERSE: NDArray[np.float64] = 1.0 / TEMPERATURE_IN_K
     
+    # Error propagation for 1/T
+    # For y = 1/x, the error is Δy = |dy/dx| * Δx = |-1/x²| * Δx = Δx/x²
+    INVERSE_TEMPERATURE_ERROR_IN_K_INVERSE: NDArray[np.float64] = TEMPERATURE_ERROR_IN_K / (TEMPERATURE_IN_K**2)
+    
+    print("\nInverse Temperature Analysis:")
+    for i in range(len(INVERSE_TEMPERATURE_IN_K_INVERSE)):
+        print(f"    1/T = {INVERSE_TEMPERATURE_IN_K_INVERSE[i]:.8f} ± {INVERSE_TEMPERATURE_ERROR_IN_K_INVERSE[i]:.8f} K⁻¹")
+    
+    # Perform ODR fit for wavelength vs 1/T (Wien's displacement law)
+    # Wien's law states that λ_max * T = constant, so λ_max = constant * (1/T)
+    # This means we expect a linear relationship between wavelength and 1/T with zero intercept
+    
+    # Convert wavelength from nm to m for physical constants
+    wavelength_in_m = WAVELENGTH_IN_NM * 1e-9
+    wavelength_error_in_m = WAVELENGTH_ERROR_IN_NM * 1e-9
+    
+    # Perform the ODR fit
+    wien_constant, wien_constant_error, intercept, intercept_error = perform_odr_fit(
+        INVERSE_TEMPERATURE_IN_K_INVERSE,
+        wavelength_in_m,
+        INVERSE_TEMPERATURE_ERROR_IN_K_INVERSE,
+        wavelength_error_in_m
+    )
+    
+    # Convert the Wien constant to mm·K for comparison with the theoretical value
+    wien_constant_in_mm_K = wien_constant * 1000
+    wien_constant_error_in_mm_K = wien_constant_error * 1000
+    
+    # Theoretical Wien's law constant (in mm·K)
+    theoretical_wien_constant = 2.9 # mm·K
+    
+    # Calculate the relative difference
+    relative_difference = abs(wien_constant_in_mm_K - theoretical_wien_constant) / theoretical_wien_constant * 100
+    
+    print("\nWien's Law Analysis:")
+    print(f"    Experimental Wien's constant = {wien_constant_in_mm_K:.6f} ± {wien_constant_error_in_mm_K:.6f} mm·K")
+    print(f"    Theoretical Wien's constant = {theoretical_wien_constant:.6f} mm·K")
+    print(f"    Relative difference = {relative_difference:.2f}%")
+    
+    # Create a plot of wavelength vs 1/T
+    fig = plot_odr_fit(
+        INVERSE_TEMPERATURE_IN_K_INVERSE,
+        wavelength_in_m,
+        wien_constant,
+        intercept,
+        wien_constant_error,
+        intercept_error,
+        INVERSE_TEMPERATURE_ERROR_IN_K_INVERSE,
+        wavelength_error_in_m,
+        x_label="1/T (K⁻¹)",
+        y_label="Wavelength (m)",
+        title="Wien's Displacement Law: λ_max vs 1/T",
+    )
+    
+    plt.savefig("wien_law_fit.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
 
 
 if __name__ == "__main__":
