@@ -76,6 +76,23 @@ The refraction index is calculated using:
 
 $$n = \sqrt{\left(1.1547 \cdot \sin\left(\frac{\text{Init} - \text{Angle}}{\text{Ratio}}\right) + 0.5\right)^2 + 0.75}$$
 
+First, we calculate the inner term:
+
+$$\text{inner\_term} = \frac{\text{Init} - \text{Angle}}{\text{Ratio}}$$
+
+where:
+- Init is the starting angle (STARTING_ANGLE_IN_RAD)
+- Angle is the measured maximum intensity angle (mean_max_intensity_angle_in_rad)
+- Ratio is the angle ratio (ANGLE_RATIO)
+
+Then, we calculate the sin term:
+
+$$\text{sin\_term} = 1.1547 \cdot \sin(\text{inner\_term}) + 0.5$$
+
+Finally, the refraction index is:
+
+$$n = \sqrt{(\text{sin\_term})^2 + 0.75}$$
+
 Error propagation for the inner term:
 
 $$\Delta(\text{inner\_term}) = \sqrt{\left(\frac{\Delta \text{Init}}{\text{Ratio}}\right)^2 + \left(\frac{\Delta \text{Angle}}{\text{Ratio}}\right)^2 + \left(\frac{(\text{Init} - \text{Angle}) \cdot \Delta \text{Ratio}}{\text{Ratio}^2}\right)^2}$$

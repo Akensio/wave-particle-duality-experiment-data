@@ -1,0 +1,73 @@
+Rotation Ratio Analysis:
+    Mean small-circle angle per large-circle revolution = 370.337 rad
+    Error on mean = 3.965 rad
+    Dimensionless ratio = 58.94094 ± 0.63106
+
+Starting Angle Analysis:
+    Starting angle = 66.415 ± 0.148 rad
+
+Resistance Analysis:
+    Resistance = 1.447 ± 0.009 Ω
+    Offset voltage = -0.383 ± 0.197 mV
+    Resistance of the lightbulb = 1.280 ± 0.010 Ω
+    Resistance of the wire = 0.167 ± 0.014 Ω
+
+Resistivity Analysis:
+    Resistivity = 57.106438 ± 1.253279 10^-8 ohm*m
+    Resistivity = 53.088985 ± 1.266254 10^-8 ohm*m
+    Resistivity = 48.891883 ± 1.286741 10^-8 ohm*m
+    Resistivity = 43.815304 ± 1.318579 10^-8 ohm*m
+    Resistivity = 60.942443 ± 1.249550 10^-8 ohm*m
+    Resistivity = 64.616718 ± 1.251139 10^-8 ohm*m
+    Resistivity = 67.833142 ± 1.238078 10^-8 ohm*m
+    Resistivity = 55.549431 ± 1.264495 10^-8 ohm*m
+    Resistivity = 51.051844 ± 1.271670 10^-8 ohm*m
+
+Temperature Analysis:
+    Temperature = 2015.132108 ± 37.192406 K
+    Temperature = 1895.046289 ± 38.126934 K
+    Temperature = 1767.675457 ± 39.360137 K
+    Temperature = 1610.844609 ± 41.144167 K
+    Temperature = 2128.210939 ± 36.592004 K
+    Temperature = 2235.150808 ± 36.194530 K
+    Temperature = 2327.722379 ± 35.452487 K
+    Temperature = 1968.798020 ± 37.734303 K
+    Temperature = 1833.475519 ± 38.581497 K
+
+Refraction Index Analysis:
+    Refraction index = 1.701867 ± 0.005969
+    Refraction index = 1.700878 ± 0.005964
+    Refraction index = 1.699545 ± 0.005958
+    Refraction index = 1.697990 ± 0.006003
+    Refraction index = 1.702238 ± 0.005947
+    Refraction index = 1.702515 ± 0.005941
+    Refraction index = 1.702669 ± 0.005941
+    Refraction index = 1.700754 ± 0.005957
+    Refraction index = 1.699732 ± 0.005959
+
+Wavelength Analysis:
+    Wavelength = 1083.405012 ± 223.383636 nm
+    Wavelength = 1121.648823 ± 238.212598 nm
+    Wavelength = 1177.314752 ± 259.981557 nm
+    Wavelength = 1248.850244 ± 290.624819 nm
+    Wavelength = 1069.715621 ± 217.243677 nm
+    Wavelength = 1059.672001 ± 213.127302 nm
+    Wavelength = 1054.173206 ± 211.008826 nm
+    Wavelength = 1126.614221 ± 239.907529 nm
+    Wavelength = 1169.236486 ± 256.821504 nm
+
+Inverse Temperature Analysis:
+    1/T = 0.00049625 ± 0.00000916 K⁻¹
+    1/T = 0.00052769 ± 0.00001062 K⁻¹
+    1/T = 0.00056571 ± 0.00001260 K⁻¹
+    1/T = 0.00062079 ± 0.00001586 K⁻¹
+    1/T = 0.00046988 ± 0.00000808 K⁻¹
+    1/T = 0.00044740 ± 0.00000724 K⁻¹
+    1/T = 0.00042960 ± 0.00000654 K⁻¹
+    1/T = 0.00050792 ± 0.00000973 K⁻¹
+    1/T = 0.00054541 ± 0.00001148 K⁻¹
+
+Wien's Law Analysis:
+    Experimental Wien's constant = 1.026961 ± 0.094827 mm·K
+    Theoretical Wien's constant = 2.900000 mm·K
+    Relative difference = 64.59%

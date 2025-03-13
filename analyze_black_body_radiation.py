@@ -159,6 +159,10 @@ def main() -> None:
     rho_scaled: NDArray[np.float64] = resistivity_in_ohm_m * 1e8  # Convert to units of 10^-8 ohm*m
     rho_scaled_error: NDArray[np.float64] = resistivity_error_in_ohm_m * 1e8
     
+    print("\nResistivity Analysis:")
+    for i in range(len(rho_scaled)):
+        print(f"    Resistivity = {rho_scaled[i]:.6f} ± {rho_scaled_error[i]:.6f} 10^-8 ohm*m")
+    
     TEMPERATURE_IN_K: NDArray[np.float64] = 103 + 38.1 * rho_scaled - 0.095 * rho_scaled**2 + 2.48e-4 * rho_scaled**3
     
     # Error propagation for temperature
