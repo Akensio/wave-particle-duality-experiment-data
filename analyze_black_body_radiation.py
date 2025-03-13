@@ -161,7 +161,7 @@ def main() -> None:
     
     print("\nResistivity Analysis:")
     for i in range(len(rho_scaled)):
-        print(f"    Resistivity = {rho_scaled[i]:.6f} ± {rho_scaled_error[i]:.6f} 10^-8 ohm*m")
+        print(f"    Resistivity = {rho_scaled[i]:.2f} ± {rho_scaled_error[i]:.2f} 10^-8 ohm*m")
     
     TEMPERATURE_IN_K: NDArray[np.float64] = 103 + 38.1 * rho_scaled - 0.095 * rho_scaled**2 + 2.48e-4 * rho_scaled**3
     
@@ -173,7 +173,7 @@ def main() -> None:
 
     print("\nTemperature Analysis:")
     for i in range(len(TEMPERATURE_IN_K)):
-        print(f"    Temperature = {TEMPERATURE_IN_K[i]:.6f} ± {TEMPERATURE_ERROR_IN_K[i]:.6f} K")
+        print(f"    Temperature = {TEMPERATURE_IN_K[i]:.2f} ± {TEMPERATURE_ERROR_IN_K[i]:.2f} K")
     
     # 6) Extract the max intensity angle measurements
     max_intensity_angle_1: NDArray[np.float64] = max_intensity_df["max_intensity_angle_measurement_1-rad"].values
@@ -224,7 +224,7 @@ def main() -> None:
 
     print("\nRefraction Index Analysis:")
     for i in range(len(refraction_index)):
-        print(f"    Refraction index = {refraction_index[i]:.6f} ± {refraction_index_error[i]:.6f}")
+        print(f"    Refraction index = {refraction_index[i]:.3f} ± {refraction_index_error[i]:.3f}")
 
     # 8) Calculate wavelengths using the formula from equation (2.12)
     # λ = 3000/√(A + Bn + Cn² + Dn³ + En⁴ + Fn⁵ + Gn⁶ + Hn⁷ + In⁸)
@@ -271,7 +271,7 @@ def main() -> None:
 
     print("\nWavelength Analysis:")
     for i in range(len(WAVELENGTH_IN_NM)):
-        print(f"    Wavelength = {WAVELENGTH_IN_NM[i]:.6f} ± {WAVELENGTH_ERROR_IN_NM[i]:.6f} nm")
+        print(f"    Wavelength = {WAVELENGTH_IN_NM[i]:.2f} ± {WAVELENGTH_ERROR_IN_NM[i]:.2f} nm")
 
     ############################################################
     # INVERSE TEMPERATURE AND WIEN'S LAW ANALYSIS
