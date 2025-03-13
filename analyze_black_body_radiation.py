@@ -149,7 +149,7 @@ def main() -> None:
     # For rho = rho0 * ((R - Rw) / R0)
     # We need to propagate errors from R, Rw, and R0
     # Calculate the error term for the resistivity:
-    # (Δρ/ρ)² = Δ[(R-Rw)/R₀]/[(R-Rw)/R₀] = √( [Δ(R-Rw)/(R-Rw)]² + [ΔR₀/R₀]² ) = √( [ΔR/(R-Rw)]² + [ΔRw/(R-Rw)]² + [ΔR₀/R₀]² )
+    # Δρ/ρ = Δ[(R-Rw)/R₀]/[(R-Rw)/R₀] = √( [Δ(R-Rw)/(R-Rw)]² + [ΔR₀/R₀]² ) = √( [ΔR/(R-Rw)]² + [ΔRw/(R-Rw)]² + [ΔR₀/R₀]² )
     term_error_squared: NDArray[np.float64] = (resistance_error_in_ohms / (resistance_in_ohms - Rw))**2 + (R_WIRES_ERROR_IN_OHMS / (resistance_in_ohms - Rw))**2 + (R_LIGHTBULB_ERROR_IN_OHMS / R0)**2
     resistivity_error_in_ohm_m: NDArray[np.float64] = resistivity_in_ohm_m * np.sqrt(term_error_squared)
     
