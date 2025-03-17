@@ -135,9 +135,8 @@ def main():
         "Wavelength (pm)",
         "Radius (mm)",
         "r1 vs wavelength",
-        "r1_vs_wavelength.png",
+        "out/r1_vs_wavelength.png",
     )
-    fig.savefig("r1_vs_wavelength.png")
     plt.close(fig)
 
     fig = odr_fit.plot_odr_fit(
@@ -152,9 +151,8 @@ def main():
         "Wavelength (pm)",
         "Radius (mm)",
         "r2 vs wavelength",
-        "r2_vs_wavelength.png",
+        "out/r2_vs_wavelength.png",
     )
-    fig.savefig("r2_vs_wavelength.png")
     plt.close(fig)
 
     print("\nSlopes:")

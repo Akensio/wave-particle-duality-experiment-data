@@ -114,7 +114,7 @@ def main() -> None:
         title="Resistance Measurement (Four-Wire Method)",
     )
 
-    plt.savefig("resistance_fit.png", dpi=300, bbox_inches="tight")
+    plt.savefig("out/resistance_fit.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -333,7 +333,7 @@ def main() -> None:
         title="Wien's Displacement Law: λ_max vs 1/T",
     )
     
-    plt.savefig("wien_law_fit.png", dpi=300, bbox_inches="tight")
+    plt.savefig("out/wien_law_fit.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
