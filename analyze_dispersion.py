@@ -104,11 +104,11 @@ def main():
 
     print("\nRadius Analysis of ring 1:")
     for i in range(len(r1_mm)):
-        print(f"    Ring 1: r = {r1_mm[i]:.3f} ± {r1_error_mm[i]:.3f} mm")
+        print(f"    Ring 1: r = {r1_mm[i]:.2f} ± {r1_error_mm[i]:.2f} mm")
 
     print("\nRadius Analysis of ring 2:")
     for i in range(len(r2_mm)):
-        print(f"    Ring 2: r = {r2_mm[i]:.3f} ± {r2_error_mm[i]:.3f} mm")
+        print(f"    Ring 2: r = {r2_mm[i]:.2f} ± {r2_error_mm[i]:.2f} mm")
 
     #########################################################
     # Dispersion analysis
@@ -168,7 +168,22 @@ def main():
     RADIUS_OF_BULB_IN_MM = DIAMETER_OF_BULB_IN_MM / 2
     RADIUS_OF_BULB_ERROR_IN_MM = DIAMETER_OF_BULB_ERROR_IN_MM / 2
 
-    
+    # We multiply the slopes by 1e9 because they were calculated in (1e-3m)/(1e-12m) = 1e9.
+    d1_in_mm = 2 * RADIUS_OF_BULB_IN_MM / (slope1 * 1e9)
+    d1_error_in_mm = d1_in_mm * np.sqrt((slope1_error / slope1)**2 + (RADIUS_OF_BULB_ERROR_IN_MM / RADIUS_OF_BULB_IN_MM)**2)
+
+    d2_in_mm = 2 * RADIUS_OF_BULB_IN_MM / (slope2 * 1e9)
+    d2_error_in_mm = d2_in_mm * np.sqrt((slope2_error / slope2)**2 + (RADIUS_OF_BULB_ERROR_IN_MM / RADIUS_OF_BULB_IN_MM)**2)
+
+    d1_in_pm = d1_in_mm * 1e9
+    d1_error_in_pm = d1_error_in_mm * 1e9
+
+    d2_in_pm = d2_in_mm * 1e9
+    d2_error_in_pm = d2_error_in_mm * 1e9
+
+    print("\nInterplanar distances:")
+    print(f"    d1: {d1_in_pm:.3f} ± {d1_error_in_pm:.3f} pm")
+    print(f"    d2: {d2_in_pm:.3f} ± {d2_error_in_pm:.3f} pm")
 
 
 if __name__ == "__main__":
