@@ -62,22 +62,23 @@ def main():
     diameter_in_external_mm = dispersion_df["diameter_in_external-mm"].values
     diameter_in_external_meas2_mm = dispersion_df["diameter2_in_external-mm"].values
 
-    # 2) Calculate the mean and error of the internal part of ring1
-    diameter1_internal_mm = (diameter_in_internal_mm + diameter_in_internal_meas2_mm) / 2
-    diameter1_internal_error_mm = np.abs(diameter_in_internal_mm - diameter_in_internal_meas2_mm) / 2
+    # 2) Calculate the mean and error of the first measurement of ring1
+    diameter1_meas1_mm = (diameter_in_internal_mm + diameter_in_external_mm) / 2
+    diameter1_meas1_error_mm = np.abs(diameter_in_external_mm - diameter_in_internal_mm) / 2
 
-    # 3) Calculate the mean and error of the external part of ring1
-    diameter1_external_mm = (diameter_in_external_mm + diameter_in_external_meas2_mm) / 2
-    diameter1_external_error_mm = np.abs(diameter_in_external_mm - diameter_in_external_meas2_mm) / 2
+    # 3) Calculate the mean and error of the second measurement of ring1
+    diameter1_meas2_mm = (diameter_in_internal_meas2_mm + diameter_in_external_meas2_mm) / 2
+    diameter1_meas2_error_mm = np.abs(diameter_in_external_meas2_mm - diameter_in_internal_meas2_mm) / 2
 
     # 4) Calculate the mean and error of d1
-    diameter1_mm = (diameter1_internal_mm + diameter1_external_mm) / 2
-    diameter1_error_mm = np.sqrt(diameter1_internal_error_mm**2 + diameter1_external_error_mm**2) / 2
+    diameter1_mm = (diameter1_meas1_mm + diameter1_meas2_mm) / 2
+    diameter1_error_mm = np.sqrt(diameter1_meas1_error_mm**2 + diameter1_meas2_error_mm**2) / 2
 
     r1_mm = diameter1_mm / 2
     r1_error_mm = diameter1_error_mm / 2
 
-    # Now do the same calculations for ring2
+    # Now we do the same calculations for ring2.
+
     # 5) Extract the measurements of ring2 diameter
     # These are the two measurements of the inner part of ring2
     diameter_ex_internal_mm = dispersion_df["diameter_ex_internal-mm"].values
@@ -86,17 +87,17 @@ def main():
     diameter_ex_external_mm = dispersion_df["diameter_ex_external-mm"].values
     diameter_ex_external_meas2_mm = dispersion_df["diameter2_ex_external-mm"].values
 
-    # 6) Calculate the mean and error of the internal part of ring2
-    diameter2_internal_mm = (diameter_ex_internal_mm + diameter_ex_internal_meas2_mm) / 2
-    diameter2_internal_error_mm = np.abs(diameter_ex_internal_mm - diameter_ex_internal_meas2_mm) / 2
+    # 6) Calculate the mean and error of the first measurement of ring2
+    diameter2_meas1_mm = (diameter_ex_internal_mm + diameter_ex_external_mm) / 2
+    diameter2_meas1_error_mm = np.abs(diameter_ex_external_mm - diameter_ex_internal_mm) / 2
 
-    # 7) Calculate the mean and error of the external part of ring2
-    diameter2_external_mm = (diameter_ex_external_mm + diameter_ex_external_meas2_mm) / 2
-    diameter2_external_error_mm = np.abs(diameter_ex_external_mm - diameter_ex_external_meas2_mm) / 2
+    # 7) Calculate the mean and error of the second measurement of ring2
+    diameter2_meas2_mm = (diameter_ex_internal_meas2_mm + diameter_ex_external_meas2_mm) / 2
+    diameter2_meas2_error_mm = np.abs(diameter_ex_external_meas2_mm - diameter_ex_internal_meas2_mm) / 2
 
     # 8) Calculate the mean and error of d2
-    diameter2_mm = (diameter2_internal_mm + diameter2_external_mm) / 2
-    diameter2_error_mm = np.sqrt(diameter2_internal_error_mm**2 + diameter2_external_error_mm**2) / 2
+    diameter2_mm = (diameter2_meas1_mm + diameter2_meas2_mm) / 2
+    diameter2_error_mm = np.sqrt(diameter2_meas1_error_mm**2 + diameter2_meas2_error_mm**2) / 2
 
     r2_mm = diameter2_mm / 2
     r2_error_mm = diameter2_error_mm / 2
