@@ -198,11 +198,12 @@ def interactive_diffraction_simulation():
     }
     
     # Set up the figure and axes
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10), gridspec_kw={'height_ratios': [3, 1]})
-    plt.subplots_adjust(left=0.15, bottom=0.35, right=0.85, top=0.95)
+    fig, (ax1, ax_total, ax2) = plt.subplots(3, 1, figsize=(12, 14), 
+                                           gridspec_kw={'height_ratios': [3, 1, 1]})
+    plt.subplots_adjust(left=0.15, bottom=0.25, right=0.85, top=0.95, hspace=0.4)
     
     # Make space for the sliders
-    fig.subplots_adjust(bottom=0.4)
+    fig.subplots_adjust(bottom=0.25)
     
     # Initial calculation and plot
     selected_wavelengths = ['Red', 'Green', 'Blue']  # Default selection
@@ -227,6 +228,32 @@ def interactive_diffraction_simulation():
     ax1.set_ylabel("Relative Intensity")
     ax1.grid(True, alpha=0.3)
     ax1.legend(loc='upper right')
+    
+    # Calculate total intensity (sum of all wavelengths)
+    screen_positions, _ = calculate_intensity_pattern(
+        wavelength_values[0], initial_grating_spacing, initial_distance, 
+        initial_screen_width, num_slits=initial_slits
+    )
+    
+    total_intensity = np.zeros_like(screen_positions)
+    for wavelength in wavelength_values:
+        _, intensity = calculate_intensity_pattern(
+            wavelength, initial_grating_spacing, initial_distance, 
+            initial_screen_width, num_slits=initial_slits
+        )
+        total_intensity += intensity
+    
+    # Normalize the total intensity
+    if np.max(total_intensity) > 0:
+        total_intensity = total_intensity / np.max(total_intensity)
+    
+    # Plot total intensity
+    ax_total.plot(screen_positions, total_intensity, 'k-', linewidth=2)
+    ax_total.set_xlim(-initial_screen_width/2, initial_screen_width/2)
+    ax_total.set_ylim(0, 1.05)
+    ax_total.set_ylabel("Total Intensity")
+    ax_total.grid(True, alpha=0.3)
+    ax_total.set_title("Combined Intensity (Sum of All Selected Wavelengths)")
     
     # Create the wall pattern visualization
     wall_height = initial_screen_width/2  # Make it rectangle for better visibility
@@ -276,10 +303,10 @@ def interactive_diffraction_simulation():
     fig.suptitle(f"Interactive Diffraction Grating Simulation\nGrating spacing: {initial_grating_spacing*1e6:.1f} μm, Number of slits: {initial_slits}", fontsize=16)
     
     # Create sliders
-    ax_grating = plt.axes([0.15, 0.25, 0.7, 0.03])
-    ax_distance = plt.axes([0.15, 0.2, 0.7, 0.03])
-    ax_slits = plt.axes([0.15, 0.15, 0.7, 0.03])
-    ax_width = plt.axes([0.15, 0.1, 0.7, 0.03])
+    ax_grating = plt.axes([0.15, 0.17, 0.7, 0.02])
+    ax_distance = plt.axes([0.15, 0.13, 0.7, 0.02])
+    ax_slits = plt.axes([0.15, 0.09, 0.7, 0.02])
+    ax_width = plt.axes([0.15, 0.05, 0.7, 0.02])
     
     # Define slider ranges
     grating_slider = Slider(ax_grating, 'Grating Spacing (μm)', 0.5, 10.0, valinit=initial_grating_spacing*1e6)
@@ -288,7 +315,7 @@ def interactive_diffraction_simulation():
     width_slider = Slider(ax_width, 'Screen Width (m)', 0.2, 3.0, valinit=initial_screen_width)
     
     # Create checkboxes for wavelength selection
-    ax_check = plt.axes([0.02, 0.4, 0.1, 0.2])
+    ax_check = plt.axes([0.02, 0.45, 0.1, 0.2])
     check_labels = list(wavelength_options.keys())
     
     # Initialize with RGB colors checked
@@ -347,6 +374,38 @@ def interactive_diffraction_simulation():
         ax1.set_ylabel("Relative Intensity")
         ax1.grid(True, alpha=0.3)
         ax1.legend(loc='upper right')
+        
+        # Calculate and plot total intensity
+        if wavelength_values:
+            # Get screen positions from the first wavelength
+            screen_positions, _ = calculate_intensity_pattern(
+                wavelength_values[0], grating_spacing, distance, screen_width, num_slits=num_slits
+            )
+            
+            # Calculate total intensity (sum of all wavelengths)
+            total_intensity = np.zeros_like(screen_positions)
+            for wavelength in wavelength_values:
+                _, intensity = calculate_intensity_pattern(
+                    wavelength, grating_spacing, distance, screen_width, num_slits=num_slits
+                )
+                total_intensity += intensity
+            
+            # Normalize the total intensity
+            if np.max(total_intensity) > 0:
+                total_intensity = total_intensity / np.max(total_intensity)
+        else:
+            # If no wavelengths are selected, show flat line
+            screen_positions = np.linspace(-screen_width/2, screen_width/2, 1000)
+            total_intensity = np.zeros_like(screen_positions)
+        
+        # Update total intensity plot
+        ax_total.clear()
+        ax_total.plot(screen_positions, total_intensity, 'k-', linewidth=2)
+        ax_total.set_xlim(-screen_width/2, screen_width/2)
+        ax_total.set_ylim(0, 1.05)
+        ax_total.set_ylabel("Total Intensity")
+        ax_total.grid(True, alpha=0.3)
+        ax_total.set_title("Combined Intensity (Sum of All Selected Wavelengths)")
         
         # Update the wall pattern
         wall_height = screen_width/2
