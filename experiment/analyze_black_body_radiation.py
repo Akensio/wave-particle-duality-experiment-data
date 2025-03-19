@@ -15,7 +15,7 @@ import pandas as pd
 from numpy.typing import NDArray
 from scipy import constants
 
-from utils.odr_fit import perform_odr_fit, plot_odr_fit
+from common.odr_fit import perform_odr_fit, plot_odr_fit
 
 datafile = os.path.join(os.path.dirname(__file__), "data", "black_body_radiation_spectrum.xlsx")
 

@@ -8,7 +8,7 @@ This script analyzes experimental data from a voltage-diameter relationship expe
 import os
 import numpy as np
 import pandas as pd
-from utils import odr_fit
+from common import odr_fit
 from numpy.typing import NDArray
 import matplotlib.pyplot as plt
 
@@ -17,7 +17,7 @@ datafile = os.path.join(os.path.dirname(__file__), "data", "dispersion.xlsx")
 
 def main():
     # Load data
-    df = pd.read_excel("data/dispersion.xlsx")
+    df = pd.read_excel(datafile)
 
     #########################################################
     # Wavelength calculations
