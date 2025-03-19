@@ -172,9 +172,9 @@ def interactive_diffraction_simulation():
     Create an interactive simulation with sliders to control parameters.
     """
     # Set up the initial parameters
-    initial_grating_spacing = 2e-6  # 2 micrometers
+    initial_grating_spacing = 1.67e-6  # 1.67 micrometers (600 lines/mm)
     initial_distance = 1.0  # 1 meter
-    initial_slits = 5
+    initial_slits = 100  # More realistic for a student lab
     initial_screen_width = 1.0  # 1 meter (wider to see more peaks)
     
     # Predefined wavelengths for visible spectrum
@@ -309,9 +309,9 @@ def interactive_diffraction_simulation():
     ax_width = plt.axes([0.15, 0.05, 0.7, 0.02])
     
     # Define slider ranges
-    grating_slider = Slider(ax_grating, 'Grating Spacing (μm)', 0.5, 10.0, valinit=initial_grating_spacing*1e6)
+    grating_slider = Slider(ax_grating, 'Grating Spacing (µm)', 0.5, 10.0, valinit=initial_grating_spacing*1e6)
     distance_slider = Slider(ax_distance, 'Distance to Screen (m)', 0.1, 5.0, valinit=initial_distance)
-    slits_slider = Slider(ax_slits, 'Number of Slits', 2, 20, valinit=initial_slits, valstep=1)
+    slits_slider = Slider(ax_slits, 'Number of Slits', 2, 1000, valinit=100, valstep=1)
     width_slider = Slider(ax_width, 'Screen Width (m)', 0.2, 3.0, valinit=initial_screen_width)
     
     # Create checkboxes for wavelength selection
@@ -321,6 +321,26 @@ def interactive_diffraction_simulation():
     # Initialize with RGB colors checked
     initial_selection = [check_labels.index(color) for color in selected_wavelengths]
     check = CheckButtons(ax_check, check_labels, [l in selected_wavelengths for l in check_labels])
+    
+    # Add realistic presets for common lab gratings
+    ax_preset = plt.axes([0.02, 0.25, 0.1, 0.15])
+    preset_buttons = RadioButtons(ax_preset, ['600 lines/mm\n(1.67µm)', '300 lines/mm\n(3.33µm)', 
+                                              '1200 lines/mm\n(0.83µm)'], active=0)
+
+    # Add a preset handler function
+    def handle_preset(label):
+        if '600' in label:
+            grating_slider.set_val(1.67)
+            slits_slider.set_val(100)
+        elif '300' in label:
+            grating_slider.set_val(3.33)
+            slits_slider.set_val(75)
+        elif '1200' in label:
+            grating_slider.set_val(0.83)
+            slits_slider.set_val(150)
+        update(0)  # Update the display
+
+    preset_buttons.on_clicked(handle_preset)
     
     # Update function for the sliders and checkboxes
     def update(val):
