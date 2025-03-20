@@ -69,6 +69,7 @@ class DiffractionVisualizer:
             )
         
         plt.tight_layout()
+        plt.show()
         return fig, ax
     
     def plot_infinite_slit_pattern(
@@ -113,4 +114,5 @@ class DiffractionVisualizer:
             )
         
         plt.tight_layout()
+        plt.show()
         return fig, ax 
