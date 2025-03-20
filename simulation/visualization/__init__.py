@@ -1,1 +1,4 @@
-from simulation.visualization.plotter import DiffractionVisualizer 
+from simulation.visualization.plotter import DiffractionVisualizer
+from simulation.visualization.spectrum import SpectrumPlotter
+from simulation.visualization.comparison import ComparisonPlotter
+from simulation.visualization.wall_pattern import WallPatternRenderer 

@@ -1,11 +1,12 @@
 """
-Diffraction Grating Simulation Package
+Wave-Particle Duality Simulation Package
 
-This package provides a modular framework for simulating light diffraction 
-through a grating and visualizing the resulting patterns.
+A package for simulating and visualizing the diffraction of light through a grating,
+demonstrating the wave-particle duality of light.
 """
 
-from simulation.core.physics import DiffractionModel
+__version__ = "1.0.0"
+
 from simulation.core.simulator import DiffractionSimulator
 from simulation.visualization.plotter import DiffractionVisualizer
 from simulation.ui.interactive import run_interactive_simulation

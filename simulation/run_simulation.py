@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""
-Main script to run the diffraction grating simulation with various options.
-"""
+"""Run diffraction grating simulation with various options."""
 
 import sys
 import os
 import argparse
 import numpy as np
 
-# Add parent directory to path for imports to work
+# Add parent directory to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from simulation.ui.interactive import run_interactive_simulation
@@ -31,16 +29,7 @@ def parse_wavelength(wavelength_str):
 
 
 def gaussian_spectrum(center, width):
-    """
-    Create a Gaussian spectrum intensity function.
-    
-    Args:
-        center: Center wavelength in meters
-        width: Width (standard deviation) in meters
-        
-    Returns:
-        Function that takes wavelengths and returns intensities
-    """
+    """Create a Gaussian spectrum intensity function."""
     def intensity_function(wavelengths):
         return np.exp(-((wavelengths - center) / width) ** 2 / 2)
     
@@ -48,17 +37,7 @@ def gaussian_spectrum(center, width):
 
 
 def double_peak_spectrum(center1, center2, width):
-    """
-    Create a double-peaked spectrum intensity function.
-    
-    Args:
-        center1: First peak center wavelength in meters
-        center2: Second peak center wavelength in meters
-        width: Width (standard deviation) in meters
-        
-    Returns:
-        Function that takes wavelengths and returns intensities
-    """
+    """Create a double-peaked spectrum intensity function."""
     def intensity_function(wavelengths):
         return (np.exp(-((wavelengths - center1) / width) ** 2 / 2) + 
                 np.exp(-((wavelengths - center2) / width) ** 2 / 2))
@@ -67,7 +46,7 @@ def double_peak_spectrum(center1, center2, width):
 
 
 def main():
-    """Main function to run the simulation based on command line arguments."""
+    """Run simulation based on command line arguments."""
     parser = argparse.ArgumentParser(description='Diffraction Grating Simulation')
     
     # Define simulation modes
@@ -87,11 +66,11 @@ def main():
     parser.add_argument('--slits', type=int, default=100,
                        help='Number of slits (default: 100)')
     
-    # Define wavelength parameters (for monochromatic modes)
+    # Define wavelength parameters
     parser.add_argument('--wavelength', type=str, default='532nm',
-                       help='Wavelength (for monochromatic modes) in nm or m (default: 532nm)')
+                       help='Wavelength in nm or m (default: 532nm)')
     
-    # Define spectrum parameters (for custom modes)
+    # Define spectrum parameters
     spectrum_group = parser.add_argument_group('Custom spectrum options')
     spectrum_group.add_argument('--spectrum-type', type=str, default='gaussian',
                               choices=['gaussian', 'double-peak'],
@@ -99,28 +78,22 @@ def main():
     spectrum_group.add_argument('--center', type=str, default='550nm',
                               help='Center wavelength for Gaussian spectrum (default: 550nm)')
     spectrum_group.add_argument('--spectrum-width', type=str, default='50nm',
-                              help='Width (standard deviation) for spectrum (default: 50nm)')
+                              help='Width for spectrum (default: 50nm)')
     spectrum_group.add_argument('--center2', type=str, default='650nm',
                               help='Second center wavelength for double-peak spectrum (default: 650nm)')
     
-    # Parse the arguments
+    # Parse arguments
     args = parser.parse_args()
     
     # Convert spacing from lines/mm if needed
-    if args.spacing > 0 and args.spacing < 0.1:
-        # If the value is small, assume it's directly in meters
-        grating_spacing = args.spacing
-    else:
-        # Otherwise, assume it's lines/mm and convert
-        grating_spacing = 1 / (args.spacing * 1000)  # Convert to meters
+    grating_spacing = args.spacing if args.spacing < 0.1 else 1 / (args.spacing * 1000)
     
-    # Interactive UI modes
+    # Interactive modes
     if args.mode == 'interactive' or args.mode == 'interactive-infinite':
-        use_infinite_slits = (args.mode == 'interactive-infinite')
-        run_interactive_simulation(use_infinite_slits=use_infinite_slits)
+        run_interactive_simulation(use_infinite_slits=(args.mode == 'interactive-infinite'))
         return
     
-    # Create simulation instance for all other modes
+    # Create simulator for other modes
     simulator = DiffractionSimulator(
         grating_spacing=grating_spacing,
         distance_to_screen=args.distance,
@@ -130,26 +103,22 @@ def main():
     
     # Run the appropriate simulation mode
     if args.mode == 'spectrum' or args.mode == 'spectrum-infinite':
-        use_infinite_slits = (args.mode == 'spectrum-infinite')
         simulator.simulate_visible_spectrum(
             show_maxima=True,
-            use_infinite_slits=use_infinite_slits
+            use_infinite_slits=(args.mode == 'spectrum-infinite')
         )
     
     elif args.mode == 'monochromatic' or args.mode == 'monochromatic-infinite':
         wavelength = parse_wavelength(args.wavelength)
-        use_infinite_slits = (args.mode == 'monochromatic-infinite')
         simulator.simulate_monochromatic(
             wavelength=wavelength,
             show_maxima=True,
-            use_infinite_slits=use_infinite_slits
+            use_infinite_slits=(args.mode == 'monochromatic-infinite')
         )
     
     elif args.mode == 'custom' or args.mode == 'custom-infinite':
-        # Parse spectrum parameters
         center = parse_wavelength(args.center)
         width = parse_wavelength(args.spectrum_width)
-        use_infinite_slits = (args.mode == 'custom-infinite')
         
         if args.spectrum_type == 'gaussian':
             intensity_function = gaussian_spectrum(center, width)
@@ -159,9 +128,9 @@ def main():
         
         simulator.simulate_custom_spectrum(
             intensity_function=intensity_function,
-            wavelength_range=(400e-9, 700e-9),  # Visible range
+            wavelength_range=(400e-9, 700e-9),
             num_wavelengths=20,
-            use_infinite_slits=use_infinite_slits
+            use_infinite_slits=(args.mode == 'custom-infinite')
         )
     
     elif args.mode == 'compare':
