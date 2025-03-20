@@ -7,5 +7,4 @@ demonstrating the wave-particle duality of light.
 
 __version__ = "1.0.0"
 
-from simulation.core.simulator import DiffractionSimulator
 from simulation.ui.interactive import run_interactive_simulation
