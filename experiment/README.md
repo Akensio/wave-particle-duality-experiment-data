@@ -40,7 +40,7 @@ python -m experiment.analyze_black_body_radiation
 python -m experiment.analyze_dispersion
 ```
 
-Outputs and generated plots will be saved to the `experiment/out/` directory.
+Outputs and generated plots will be saved to the `out/` directory.
 
 ## Data Structure
 
@@ -59,4 +59,20 @@ The experimental data is stored in Excel files with multiple sheets:
 
 The experiments verify two key quantum phenomena:
 1. Black body radiation and Wien's displacement law: λ_max * T = constant
-2. De Broglie relation for electron waves: λ = h/√(2mEk), demonstrating the wave-particle duality of matter 
+2. De Broglie relation for electron waves: λ = h/√(2mEk), demonstrating the wave-particle duality of matter
+
+### Documentation
+
+Detailed theoretical background and equations are available in the following files:
+
+- [Black Body Radiation Equations](equations_black_body_radiation.md) - Contains:
+  - Wien's displacement law derivation
+  - Resistivity and temperature relationship for tungsten
+  - Planck's radiation law formulation
+  - Detailed error analysis methodology
+
+- [Electron Diffraction Equations](equations_dispersion.md) - Contains:
+  - De Broglie wavelength calculation
+  - Diffraction pattern angle relationships
+  - Bragg's law for crystalline materials
+  - Formulas for interplanar distance determination
