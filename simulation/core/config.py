@@ -44,11 +44,3 @@ COLOR_RGB_MAP = {
     'orange': [1, 0.65, 0],
     'red': [1, 0, 0]
 }
-
-# Grating presets (lines/mm)
-GRATING_PRESETS = {
-    '300 lines/mm': {'spacing': 1/300e3, 'slits': 300},
-    '600 lines/mm': {'spacing': 1/600e3, 'slits': 600},
-    '1000 lines/mm': {'spacing': 1/1000e3, 'slits': 1000},
-    '1200 lines/mm': {'spacing': 1/1200e3, 'slits': 1200}
-} 

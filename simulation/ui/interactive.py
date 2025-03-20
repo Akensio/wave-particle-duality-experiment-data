@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, CheckButtons, RadioButtons
 
-from simulation.core.physics import DiffractionPhysics, InfiniteSlitDiffractionPhysics
+from simulation.core.physics import DiffractionPhysics
 from simulation.visualization.wall_pattern import WallPatternRenderer
 from simulation.core.config import (
     DEFAULT_GRATING_SPACING, DEFAULT_DISTANCE_TO_SCREEN, DEFAULT_NUM_SLITS,
-    DEFAULT_SCREEN_WIDTH, WAVELENGTH_OPTIONS, COLOR_MAP, GRATING_PRESETS,
+    DEFAULT_SCREEN_WIDTH, WAVELENGTH_OPTIONS, COLOR_MAP,
     DEFAULT_WAVELENGTHS
 )
 
@@ -14,10 +14,8 @@ from simulation.core.config import (
 class InteractiveSimulation:
     """Interactive diffraction simulation with real-time parameter controls."""
     
-    def __init__(self, use_infinite_slits=False):
+    def __init__(self):
         """Initialize the interactive simulation."""
-        self.use_infinite_slits = use_infinite_slits
-        
         # Initialize parameters
         self.grating_spacing = DEFAULT_GRATING_SPACING
         self.distance_to_screen = DEFAULT_DISTANCE_TO_SCREEN
@@ -26,7 +24,9 @@ class InteractiveSimulation:
         self.selected_wavelengths = DEFAULT_WAVELENGTHS.copy()
         
         # Create physics model
-        self._init_physics_model()
+        self.physics = DiffractionPhysics(
+            self.grating_spacing, self.distance_to_screen, self.screen_width
+        )
         
         # Create visualizer components
         self.wall_renderer = WallPatternRenderer()
@@ -36,17 +36,6 @@ class InteractiveSimulation:
         self._create_controls()
         self._update_plots()
     
-    def _init_physics_model(self):
-        """Initialize physics model based on simulation mode."""
-        if self.use_infinite_slits:
-            self.physics = InfiniteSlitDiffractionPhysics(
-                self.grating_spacing, self.distance_to_screen, self.screen_width
-            )
-        else:
-            self.physics = DiffractionPhysics(
-                self.grating_spacing, self.distance_to_screen, self.screen_width
-            )
-    
     def _create_figure(self):
         """Create the figure and axes for the interactive simulation."""
         self.fig, (self.ax1, self.ax_total, self.ax2) = plt.subplots(
@@ -54,12 +43,7 @@ class InteractiveSimulation:
         )
         
         suptitle = "Interactive Diffraction Grating Simulation"
-        if self.use_infinite_slits:
-            suptitle += " (Infinite Slits)"
-        suptitle += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} μm"
-        
-        if not self.use_infinite_slits:
-            suptitle += f", Number of slits: {self.num_slits}"
+        suptitle += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} μm, Number of slits: {self.num_slits}"
             
         self.fig.suptitle(suptitle, fontsize=16)
         plt.subplots_adjust(left=0.15, bottom=0.25, right=0.85, top=0.95, hspace=0.4)
@@ -69,6 +53,7 @@ class InteractiveSimulation:
         # Create sliders
         ax_grating = plt.axes([0.15, 0.17, 0.7, 0.02])
         ax_distance = plt.axes([0.15, 0.13, 0.7, 0.02])
+        ax_slits = plt.axes([0.15, 0.09, 0.7, 0.02])
         ax_width = plt.axes([0.15, 0.05, 0.7, 0.02])
         
         self.grating_slider = Slider(
@@ -79,19 +64,14 @@ class InteractiveSimulation:
             ax_distance, 'Distance to Screen (m)', 
             0.1, 5.0, valinit=self.distance_to_screen
         )
+        self.slits_slider = Slider(
+            ax_slits, 'Number of Slits', 
+            2, 1000, valinit=self.num_slits, valstep=1
+        )
         self.width_slider = Slider(
             ax_width, 'Screen Width (m)', 
             0.2, 3.0, valinit=self.screen_width
         )
-        
-        # Add slits slider for finite slits model
-        if not self.use_infinite_slits:
-            ax_slits = plt.axes([0.15, 0.09, 0.7, 0.02])
-            self.slits_slider = Slider(
-                ax_slits, 'Number of Slits', 
-                2, 1000, valinit=self.num_slits, valstep=1
-            )
-            self.slits_slider.on_changed(self._update)
         
         # Create wavelength selection checkboxes
         ax_check = plt.axes([0.02, 0.45, 0.1, 0.2])
@@ -103,18 +83,12 @@ class InteractiveSimulation:
             [i in active for i in range(len(check_labels))]
         )
         
-        # Create grating preset radio buttons
-        ax_radio = plt.axes([0.02, 0.15, 0.1, 0.1])
-        self.radio = RadioButtons(
-            ax_radio, list(GRATING_PRESETS.keys()), active=0
-        )
-        
         # Connect callbacks
         self.grating_slider.on_changed(self._update)
         self.distance_slider.on_changed(self._update)
+        self.slits_slider.on_changed(self._update)
         self.width_slider.on_changed(self._update)
         self.check.on_clicked(self._update_wavelengths)
-        self.radio.on_clicked(self._update_grating_preset)
     
     def _update_plots(self):
         """Update all plots based on current parameters."""
@@ -151,7 +125,7 @@ class InteractiveSimulation:
         """Plot intensity patterns for individual wavelengths."""
         for i, (wavelength, color, label) in enumerate(zip(wavelengths, colors, labels)):
             screen_positions, intensity = self.physics.calculate_intensity_pattern(
-                wavelength, num_slits=self.num_slits if not self.use_infinite_slits else None
+                wavelength, num_slits=self.num_slits
             )
             
             self.ax1.plot(screen_positions, intensity, color=color, label=label)
@@ -170,14 +144,14 @@ class InteractiveSimulation:
         """Calculate total intensity from multiple wavelengths."""
         # Get positions from first wavelength
         positions, _ = self.physics.calculate_intensity_pattern(
-            wavelengths[0], num_slits=None if self.use_infinite_slits else self.num_slits
+            wavelengths[0], num_slits=self.num_slits
         )
         
         # Sum contributions from all wavelengths
         total = np.zeros_like(positions)
         for wl in wavelengths:
             _, intensity = self.physics.calculate_intensity_pattern(
-                wl, num_slits=None if self.use_infinite_slits else self.num_slits
+                wl, num_slits=self.num_slits
             )
             total += intensity
         
@@ -197,11 +171,7 @@ class InteractiveSimulation:
         self.ax1.grid(True, alpha=0.3)
         self.ax1.legend()
         
-        title = "Diffraction Pattern"
-        if self.use_infinite_slits:
-            title += " (Infinite Slits)"
-        else:
-            title += f" ({self.num_slits} Slits)"
+        title = f"Diffraction Pattern ({self.num_slits} Slits)"
         title += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} µm, Distance: {self.distance_to_screen:.1f} m"
         self.ax1.set_title(title)
         
@@ -220,7 +190,7 @@ class InteractiveSimulation:
             self.physics, 
             wavelengths, 
             colors, 
-            num_slits=None if self.use_infinite_slits else self.num_slits,
+            num_slits=self.num_slits,
             ax=self.ax2
         )
         self.ax2.set_title("Pattern on Wall")
@@ -231,9 +201,7 @@ class InteractiveSimulation:
         self.grating_spacing = self.grating_slider.val * 1e-6  # Convert from µm to m
         self.distance_to_screen = self.distance_slider.val
         self.screen_width = self.width_slider.val
-        
-        if not self.use_infinite_slits:
-            self.num_slits = int(self.slits_slider.val)
+        self.num_slits = int(self.slits_slider.val)
         
         # Update physics model parameters
         self.physics.grating_spacing = self.grating_spacing
@@ -242,12 +210,7 @@ class InteractiveSimulation:
         
         # Update title
         suptitle = "Interactive Diffraction Grating Simulation"
-        if self.use_infinite_slits:
-            suptitle += " (Infinite Slits)"
-        suptitle += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} μm"
-        
-        if not self.use_infinite_slits:
-            suptitle += f", Number of slits: {self.num_slits}"
+        suptitle += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} μm, Number of slits: {self.num_slits}"
             
         self.fig.suptitle(suptitle, fontsize=16)
         
@@ -262,29 +225,10 @@ class InteractiveSimulation:
             self.selected_wavelengths.append(label)
         
         self._update_plots()
-    
-    def _update_grating_preset(self, label):
-        """Update callback for grating presets."""
-        preset = GRATING_PRESETS[label]
-        self.grating_spacing = preset['spacing']
-        
-        if not self.use_infinite_slits:
-            self.num_slits = preset['slits']
-        
-        # Update slider values
-        self.grating_slider.set_val(self.grating_spacing * 1e6)
-        
-        if not self.use_infinite_slits:
-            self.slits_slider.set_val(self.num_slits)
-        
-        # Update physics model
-        self.physics.grating_spacing = self.grating_spacing
-        
-        # Update plots
-        self._update_plots()
 
 
 def run_interactive_simulation(use_infinite_slits=False):
     """Run the interactive simulation."""
-    simulation = InteractiveSimulation(use_infinite_slits=use_infinite_slits)
+    # Ignore the use_infinite_slits parameter (kept for compatibility)
+    simulation = InteractiveSimulation()
     plt.show() 

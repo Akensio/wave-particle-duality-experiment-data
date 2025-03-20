@@ -21,25 +21,11 @@ A repository containing simulation and experiment data related to wave-particle 
    poetry shell
    ```
 
-## Running the Simulation
+## Usage
 
-Always run from the ROOT directory using either:
+Always run scripts from the ROOT directory.
 
-```bash
-python -m simulation.run [options]
-```
-
-or 
-
-```bash
-python simulation/run.py [options]
-```
-
-For detailed usage and parameters, see [simulation README](simulation/README.md).
-
-## Experiment Data
-
-For information on experiment data and analysis tools, see [experiment README](experiment/README.md).
+For further details and usage see [simulation README](simulation/README.md) and [experiment README](experiment/README.md).
 
 ## License
 

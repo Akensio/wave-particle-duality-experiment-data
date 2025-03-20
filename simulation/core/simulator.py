@@ -1,12 +1,8 @@
 import numpy as np
 from typing import List, Tuple, Optional, Callable
 
-from simulation.core.physics import DiffractionPhysics, InfiniteSlitDiffractionPhysics
-from simulation.visualization import (
-    DiffractionVisualizer, 
-    SpectrumPlotter, 
-    ComparisonPlotter
-)
+from simulation.core.physics import DiffractionPhysics
+from simulation.visualization import DiffractionVisualizer
 from simulation.core.config import WAVELENGTH_OPTIONS, COLOR_MAP
 
 
@@ -31,14 +27,8 @@ class DiffractionSimulator:
             grating_spacing, distance_to_screen, screen_width
         )
         
-        self.infinite_physics = InfiniteSlitDiffractionPhysics(
-            grating_spacing, distance_to_screen, screen_width
-        )
-        
         # Create visualizers
         self.visualizer = DiffractionVisualizer()
-        self.spectrum_plotter = SpectrumPlotter()
-        self.comparison_plotter = ComparisonPlotter()
         
     def update_parameters(
         self, 
@@ -51,17 +41,14 @@ class DiffractionSimulator:
         if grating_spacing is not None:
             self.grating_spacing = grating_spacing
             self.physics.grating_spacing = grating_spacing
-            self.infinite_physics.grating_spacing = grating_spacing
             
         if distance_to_screen is not None:
             self.distance_to_screen = distance_to_screen
             self.physics.distance_to_screen = distance_to_screen
-            self.infinite_physics.distance_to_screen = distance_to_screen
             
         if screen_width is not None:
             self.screen_width = screen_width
             self.physics.screen_width = screen_width
-            self.infinite_physics.screen_width = screen_width
             
         if num_slits is not None:
             self.num_slits = num_slits
@@ -83,8 +70,7 @@ class DiffractionSimulator:
     
     def simulate_visible_spectrum(
         self, 
-        show_maxima: bool = True,
-        use_infinite_slits: bool = False
+        show_maxima: bool = True
     ) -> None:
         """Simulate the visible light spectrum diffraction pattern."""
         colors = list(WAVELENGTH_OPTIONS.keys())
@@ -92,91 +78,29 @@ class DiffractionSimulator:
         plot_colors = [COLOR_MAP[color] for color in colors]
         labels = [f"{color} ({wl*1e9:.0f} nm)" for color, wl in zip(colors, wavelengths)]
         
-        if use_infinite_slits:
-            self.visualizer.plot_infinite_slit_pattern(
-                physics=self.infinite_physics,
-                wavelengths=wavelengths,
-                colors=plot_colors,
-                labels=labels
-            )
-        else:
-            self.visualizer.plot_diffraction_pattern(
-                physics=self.physics,
-                wavelengths=wavelengths,
-                colors=plot_colors,
-                labels=labels,
-                num_slits=self.num_slits,
-                show_maxima=show_maxima
-            )
+        self.visualizer.plot_diffraction_pattern(
+            physics=self.physics,
+            wavelengths=wavelengths,
+            colors=plot_colors,
+            labels=labels,
+            num_slits=self.num_slits,
+            show_maxima=show_maxima
+        )
     
     def simulate_monochromatic(
         self,
         wavelength: float = 532e-9,
-        show_maxima: bool = True,
-        use_infinite_slits: bool = False
+        show_maxima: bool = True
     ) -> None:
         """Simulate a monochromatic light diffraction pattern."""
         label = f"{wavelength*1e9:.0f} nm"
         color = self._get_color_for_wavelength(wavelength)
         
-        if use_infinite_slits:
-            self.visualizer.plot_infinite_slit_pattern(
-                physics=self.infinite_physics,
-                wavelengths=[wavelength],
-                colors=[color],
-                labels=[label]
-            )
-        else:
-            self.visualizer.plot_diffraction_pattern(
-                physics=self.physics,
-                wavelengths=[wavelength],
-                colors=[color],
-                labels=[label],
-                num_slits=self.num_slits,
-                show_maxima=show_maxima
-            )
-    
-    def simulate_custom_spectrum(
-        self,
-        intensity_function: Callable[[np.ndarray], np.ndarray],
-        wavelength_range: Tuple[float, float] = (400e-9, 700e-9),
-        num_wavelengths: int = 10,
-        use_infinite_slits: bool = False
-    ) -> None:
-        """Simulate a custom spectrum diffraction pattern."""
-        wavelengths = np.linspace(wavelength_range[0], wavelength_range[1], num_wavelengths)
-        intensities = intensity_function(wavelengths)
-        
-        if np.max(intensities) > 0:
-            intensities = intensities / np.max(intensities)
-        
-        colors = [self._get_color_for_wavelength(wl) for wl in wavelengths]
-        labels = [f"{wl*1e9:.0f} nm" for wl in wavelengths]
-        
-        physics = self.infinite_physics if use_infinite_slits else self.physics
-        self.spectrum_plotter.plot_custom_spectrum(
-            physics=physics,
-            wavelengths=wavelengths,
-            intensities=intensities,
-            colors=colors,
-            labels=labels,
+        self.visualizer.plot_diffraction_pattern(
+            physics=self.physics,
+            wavelengths=[wavelength],
+            colors=[color],
+            labels=[label],
             num_slits=self.num_slits,
-            use_infinite_slits=use_infinite_slits
-        )
-    
-    def compare_slit_numbers(
-        self,
-        wavelength: float = 532e-9,
-        slit_numbers: List[int] = [2, 5, 10, 50, 100, 500],
-        show_infinite: bool = True
-    ) -> None:
-        """Compare diffraction patterns with different slit numbers."""
-        color = self._get_color_for_wavelength(wavelength)
-        
-        self.comparison_plotter.plot_slit_comparison(
-            finite_physics=self.physics,
-            infinite_physics=self.infinite_physics if show_infinite else None,
-            wavelength=wavelength,
-            color=color,
-            slit_numbers=slit_numbers
+            show_maxima=show_maxima
         ) 
