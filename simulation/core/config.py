@@ -7,7 +7,7 @@
 DEFAULT_GRATING_SPACING = 1.67e-6  # 600 lines/mm in meters
 DEFAULT_DISTANCE_TO_SCREEN = 1.0  # meters
 DEFAULT_SCREEN_WIDTH = 1.0  # meters
-DEFAULT_NUM_SLITS = 100
+DEFAULT_NUM_SLITS = 5
 DEFAULT_NUM_POINTS = 1000
 
 # Wavelengths of visible light in meters

@@ -66,7 +66,7 @@ class InteractiveSimulation:
         )
         self.slits_slider = Slider(
             ax_slits, 'Number of Slits', 
-            2, 1000, valinit=self.num_slits, valstep=1
+            2, 200, valinit=self.num_slits, valstep=1
         )
         self.width_slider = Slider(
             ax_width, 'Screen Width (m)', 

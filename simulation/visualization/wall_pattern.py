@@ -37,7 +37,7 @@ class WallPatternRenderer:
         # Calculate the wall pattern
         screen_width = physics.screen_width
         wall_height = screen_width / 2
-        wall_y = np.linspace(-wall_height, wall_height, 200)
+        wall_y = np.linspace(-wall_height, wall_height, 50)
         
         screen_positions = np.linspace(-screen_width/2, screen_width/2, DEFAULT_NUM_POINTS)
         wall_pattern = np.zeros((len(wall_y), len(screen_positions), 3))
