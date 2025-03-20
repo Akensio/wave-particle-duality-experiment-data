@@ -4,7 +4,7 @@
 
 Maxwell’s Equations and the Wave Equation: Electromagnetic wave diffraction can be derived from fundamental principles. Maxwell’s equations (in source-free, homogeneous media) lead to the wave equation for the electric field $\mathbf{E}(\mathbf{r},t)$:
 
-$$\nabla^2 \mathbf{E} - \frac{1}{c^2}\frac{\partial^2 \mathbf{E}}{\partial t^2} = 0,$$
+$$\nabla^2 \mathbf{E} - \frac{1}{c^2}\frac{\partial^2 \mathbf{E}}{\partial t^2} = 0$$
 
 with $c$ the speed of light. In the frequency domain, this becomes the Helmholtz equation $(\nabla^2 + k^2)\mathbf{E}_0 = 0$ for monochromatic components of wavenumber $k=2\pi/\lambda$. These wave equations predict diffraction whenever a wave is limited by an aperture or obstacle – only an infinite plane wave can propagate without spreading, but any wave with finite extent must spread out as it travels. This spreading and interference of waves is the origin of diffraction patterns, and it can be calculated directly from the wave equation using appropriate boundary conditions.
 
@@ -12,19 +12,19 @@ with $c$ the speed of light. In the frequency domain, this becomes the Helmholtz
 
 A diffraction grating is an optical element with a periodic structure (e.g. a series of parallel slits or grooves). When a plane wave is incident on a grating, the periodic boundary conditions cause the outgoing (scattered) field to decompose into discrete plane-wave modes (diffracted orders). Mathematically, one can solve the Helmholtz equation with a periodic boundary condition (Floquet condition) at the grating surface, yielding solutions of the form $E \sim \exp[i(k_x x + k_z z)]$ where $k_x$ differs by multiples of the grating’s reciprocal periodicity. The condition for constructive interference between waves from adjacent grating elements leads to the grating equation:
 
-$$d\,(\sin\theta_m \pm \sin\theta_i) = m\,\lambda,$$
+$$d\,(\sin\theta_m \pm \sin\theta_i) = m\,\lambda$$
 
-where $d$ is the grating period (spacing between slits or grooves), $\theta_i$ is the angle of incidence, $\theta_m$ is the diffraction angle for the $m$-th order (an integer $m$ can be positive, negative, or zero for different diffraction orders), and $\lambda$ is the wavelength. For simplicity, at normal incidence $\theta_i=0$, this reduces to $d,\sin\theta_m = m,\lambda$. This formula is an analytical result giving the directions $\theta_m$ in which constructive interference (maxima of diffracted intensity) occur for a monochromatic wave. It shows that different wavelengths $\lambda$ will satisfy the condition at different angles $\theta_m$, which is the basis of how gratings disperse light.
+where $d$ is the grating period (spacing between slits or grooves), $\theta_i$ is the angle of incidence, $\theta_m$ is the diffraction angle for the $m$-th order (an integer $m$ can be positive, negative, or zero for different diffraction orders), and $\lambda$ is the wavelength. For simplicity, at normal incidence $\theta_i=0$, this reduces to $d,\sin\theta_m = m\lambda$. This formula is an analytical result giving the directions $\theta_m$ in which constructive interference (maxima of diffracted intensity) occur for a monochromatic wave. It shows that different wavelengths $\lambda$ will satisfy the condition at different angles $\theta_m$, which is the basis of how gratings disperse light.
 
 ### Huygens–Fresnel Principle and Kirchhoff Integral
 
 The grating can be analyzed by treating each point on each slit as a secondary source (Huygens’ principle). The total field at a distant observation point is the superposition of contributions from all these sources, with relative phases determined by the path differences. Formally, the Kirchhoff diffraction formula (derived from the wave equation via Green’s functions) gives the field in the far zone as an integral over the aperture of the form:
 
-$$ U(p) \;\propto\; \iint_{\text{aperture}} E_{\text{inc}}(x,y,0)\, G(x,y)\, e^{\,i k (x \sin\theta + y \sin\phi)}\,dx\,dy, $$
+$$ U(p) \;\propto\; \iint_{\text{aperture}} E_{\text{inc}}(x,y,0)\, G(x,y)\, e^{\,i k (x \sin\theta + y \sin\phi)}\,dx\,dy$$
 
 where $E_{\text{inc}}(x,y,0)$ is the incident field on the grating plane ($z=0$), $G(x,y)$ represents the grating’s transmission or reflection function (periodic in $x$ for a line grating), and $(\theta,\phi)$ are the angles in the far field (direction cosines $l=\sin\theta$, $m=\sin\phi$). In the far field (Fraunhofer regime), this integral simplifies to a Fourier transform: the diffracted field is essentially the Fourier transform of the aperture function (incident field times grating mask). In other words,
 
-$$U(\theta,\phi) \propto \mathcal{F}\{E_{\text{inc}}(x,y)\,G(x,y)\},$$
+$$U(\theta,\phi) \propto \mathcal{F}\{E_{\text{inc}}(x,y)\,G(x,y)\}$$
 
 so the angular distribution of outgoing waves is given by the Fourier spectrum of the field immediately after the grating. For a plane-wave illumination ($E_{\text{inc}}$ constant across the grating), the diffraction pattern is basically the transform of $G(x,y)$ alone. In the case of an ideal periodic grating with many slits, this Fourier transform consists of a comb of sharp peaks at the discrete grating orders (satisfying the grating equation), modulated by the envelope of a single-slit diffraction pattern. In fact, the pattern can be viewed as a convolution of the single-slit diffraction (which gives the broad envelope) with the multi-slit interference pattern (a comb of delta-functions for an infinite, periodic grating).
 
@@ -32,7 +32,7 @@ so the angular distribution of outgoing waves is given by the Fourier spectrum o
 
 In favorable cases, one can obtain closed-form analytical expressions for the diffraction pattern. For example, a grating of $N$ identical slits each of width $a$ yields a far-field intensity:
 
-$$I(\theta) \;=\; I_0 \left(\frac{\sin\alpha}{\alpha}\right)^2 \left(\frac{\sin(N\beta)}{\sin\beta}\right)^2,$$
+$$I(\theta) \;=\; I_0 \left(\frac{\sin\alpha}{\alpha}\right)^2 \left(\frac{\sin(N\beta)}{\sin\beta}\right)^2$$
 
 where $\alpha = \frac{\pi a}{\lambda}\sin\theta$ (from single-slit diffraction) and $\beta = \frac{\pi d}{\lambda}\sin\theta$ (from the $N$-slit interference). This formula, derived by summing $N$ wave contributions, shows sharp principal maxima at the grating equation angles $d\sin\theta = m\lambda$ (from the $\sin(N\beta)/\sin\beta$ term) and a sinc-squared envelope from each slit. Such closed-form results come from applying the Fraunhofer approximation (far field) and idealizing the aperture shape. In general, the Fraunhofer diffraction equation often permits analytical solutions for simple apertures. However, the exact Kirchhoff integral (which is based on the full wave equation without the far-field approximation) usually does not have a simple closed-form solution for arbitrary grating shapes. In other words, aside from special cases (simple geometries, far-field conditions), solving Maxwell’s wave equations for a diffraction grating yields complicated integrals that must be evaluated numerically or approximated. Nonetheless, using the wave equation approach assures that diffraction is fully explained by fundamental principles (no purely empirical assumption) – historically, diffraction was observed first and later formulated in wave theory, but now we understand that the wave equation alone predicts diffraction patterns correctly.
 
@@ -42,7 +42,7 @@ where $\alpha = \frac{\pi a}{\lambda}\sin\theta$ (from single-slit diffraction) 
 
 A non-monochromatic wave pulse (for example, a short laser pulse or a flash of white light) can be thought of as a wave packet – a superposition of many sinusoidal components of different frequencies (wavelengths). Mathematically, any pulse can be decomposed by a Fourier transform into its frequency spectrum. We can write an incident pulse (for simplicity, one polarization and one spatial dimension) as:
 
-$$E_{\text{in}}(x,t) \;=\; \int_{-\infty}^{\infty} \tilde{E}(x,\omega)\, e^{-i\omega t}\,d\omega,$$
+$$E_{\text{in}}(x,t) \;=\; \int_{-\infty}^{\infty} \tilde{E}(x,\omega)\, e^{-i\omega t}\,d\omega$$
 
 where $\tilde{E}(x,\omega)$ are the complex amplitudes of each frequency component. Because the underlying wave equations are linear, each frequency component propagates and diffracts independently according to the monochromatic (Helmholtz equation) theory discussed above. The grating thus acts linearly on each Fourier component of the pulse. Specifically, for each frequency $\omega$ (wavelength $\lambda=2\pi c/\omega$), the grating will produce diffraction orders at angles given by the grating equation. In the time domain, this means the grating causes the original pulse to split into a set of pulses or beams, each corresponding to a different diffraction order and containing a particular spectral band of the original. The overall field at some observation point is then the superposition (integral) of the contributions from all the spectral components that reach that point.
 
@@ -62,7 +62,7 @@ Because each frequency travels in its own direction, an ultrashort input pulse n
 
 In free space all colors travel at the same speed $c$, but when a grating diffracts the pulse, different spectral components emerge along different directions. If we consider one particular diffraction order (say the first-order beam at angle $\theta_m(\lambda)$), the optical path length from the grating to a far-field point will generally differ for different $\lambda$ because of geometry. Equivalently, the phase delay introduced by the grating to reach a certain reference plane varies with frequency. We can characterize the grating’s effect on each frequency by a phase transfer function $\phi(\omega)$ (for a given diffraction order and propagation distance). For a narrowband pulse, $\phi(\omega)$ can be expanded in a Taylor series around the central frequency $\omega_0$:
 
-$$\phi(\omega) \approx \phi(\omega_0) + \phi{\prime}(\omega_0)\,(\omega-\omega_0) + \frac{1}{2}\phi{\prime}{\prime}(\omega_0)\,(\omega-\omega_0)^2 + \cdots,$$
+$$\phi(\omega) \approx \phi(\omega_0) + \phi{\prime}(\omega_0)\,(\omega-\omega_0) + \frac{1}{2}\phi{\prime}{\prime}(\omega_0)\,(\omega-\omega_0)^2 + \cdots$$
 
 where $\phi’(\omega_0) = d\phi/d\omega$ is the group delay (time delay experienced by the pulse’s envelope) and $\phi’’(\omega_0)$ is the group-delay dispersion (GDD) which causes pulse stretching. In essence, $\phi’(\omega_0)$ tells how the arrival time of that spectral component is shifted, and $\phi’’(\omega_0)$ (and higher terms) tell how the pulse is broadened and chirped (frequency chirp meaning a time-varying instantaneous frequency) due to the grating. For a diffraction grating in air, the primary source of dispersion is geometric: higher-frequency (shorter $\lambda$) components diffraction at different angles and thus may travel different distances to a detector or recombination point than lower-frequency components. If the diffracted beams are recombined (for instance, by mirrors or a second grating), the net effect is that the output pulse can be temporally chirped (different colors arrive at different times) unless special care is taken. In fact, grating pairs are commonly used to control dispersion in ultrafast laser systems: a parallel grating pair introduces negative GDD, meaning higher frequencies (blue) arrive earlier than lower frequencies (red) in the recombined pulse. By adjusting distances, one can stretch a pulse (adding positive dispersion) or compress a pulse (adding negative dispersion) to counteract material dispersion.
 
