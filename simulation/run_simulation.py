@@ -114,37 +114,42 @@ def main():
         # Otherwise, assume it's lines/mm and convert
         grating_spacing = 1 / (args.spacing * 1000)  # Convert to meters
     
+    # Interactive UI modes
+    if args.mode == 'interactive' or args.mode == 'interactive-infinite':
+        use_infinite_slits = (args.mode == 'interactive-infinite')
+        run_interactive_simulation(use_infinite_slits=use_infinite_slits)
+        return
+    
+    # Create simulation instance for all other modes
+    simulator = DiffractionSimulator(
+        grating_spacing=grating_spacing,
+        distance_to_screen=args.distance,
+        screen_width=args.width,
+        num_slits=args.slits
+    )
+    
     # Run the appropriate simulation mode
-    if args.mode == 'interactive':
-        run_interactive_simulation(use_infinite_slits=False)
-    
-    elif args.mode == 'interactive-infinite':
-        run_interactive_simulation(use_infinite_slits=True)
-    
-    elif args.mode == 'spectrum' or args.mode == 'spectrum-infinite':
-        DiffractionSimulator.simulate_visible_spectrum(
-            grating_spacing=grating_spacing,
-            distance_to_screen=args.distance,
-            screen_width=args.width,
-            num_slits=args.slits,
-            use_infinite_slits=(args.mode == 'spectrum-infinite')
+    if args.mode == 'spectrum' or args.mode == 'spectrum-infinite':
+        use_infinite_slits = (args.mode == 'spectrum-infinite')
+        simulator.simulate_visible_spectrum(
+            show_maxima=True,
+            use_infinite_slits=use_infinite_slits
         )
     
     elif args.mode == 'monochromatic' or args.mode == 'monochromatic-infinite':
         wavelength = parse_wavelength(args.wavelength)
-        DiffractionSimulator.simulate_monochromatic(
+        use_infinite_slits = (args.mode == 'monochromatic-infinite')
+        simulator.simulate_monochromatic(
             wavelength=wavelength,
-            grating_spacing=grating_spacing,
-            distance_to_screen=args.distance,
-            screen_width=args.width,
-            num_slits=args.slits,
-            use_infinite_slits=(args.mode == 'monochromatic-infinite')
+            show_maxima=True,
+            use_infinite_slits=use_infinite_slits
         )
     
     elif args.mode == 'custom' or args.mode == 'custom-infinite':
         # Parse spectrum parameters
         center = parse_wavelength(args.center)
         width = parse_wavelength(args.spectrum_width)
+        use_infinite_slits = (args.mode == 'custom-infinite')
         
         if args.spectrum_type == 'gaussian':
             intensity_function = gaussian_spectrum(center, width)
@@ -152,26 +157,19 @@ def main():
             center2 = parse_wavelength(args.center2)
             intensity_function = double_peak_spectrum(center, center2, width)
         
-        DiffractionSimulator.simulate_custom_spectrum(
+        simulator.simulate_custom_spectrum(
             intensity_function=intensity_function,
             wavelength_range=(400e-9, 700e-9),  # Visible range
             num_wavelengths=20,
-            grating_spacing=grating_spacing,
-            distance_to_screen=args.distance,
-            screen_width=args.width,
-            num_slits=args.slits,
-            use_infinite_slits=(args.mode == 'custom-infinite')
+            use_infinite_slits=use_infinite_slits
         )
     
     elif args.mode == 'compare':
         wavelength = parse_wavelength(args.wavelength)
         slit_numbers = [2, 5, 10, 50, 100, 500]
         
-        DiffractionSimulator.simulate_comparing_slit_numbers(
+        simulator.compare_slit_numbers(
             wavelength=wavelength,
-            grating_spacing=grating_spacing,
-            distance_to_screen=args.distance,
-            screen_width=args.width,
             slit_numbers=slit_numbers,
             show_infinite=True
         )
