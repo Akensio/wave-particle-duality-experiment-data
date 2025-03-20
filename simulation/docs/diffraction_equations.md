@@ -67,6 +67,71 @@ for m, pos in maxima:
     intensity += np.exp(-0.5 * ((screen_positions - pos) / width) ** 2)
 ```
 
+## Gaussian Wave Packet Diffraction
+
+### Wave Packet Representation
+
+A Gaussian wave packet represents a more realistic light pulse that contains a spectrum of wavelengths centered around a peak wavelength. The wave packet is described in the spatial domain as:
+
+$$\Psi(x,t) = A \cdot e^{-\frac{(x-vt)^2}{2\sigma^2}} \cdot e^{i(k_0x - \omega_0t)}$$
+
+Where:
+- $A$ is the amplitude
+- $\sigma$ is the width of the packet in space
+- $k_0 = \frac{2\pi}{\lambda_0}$ is the central wavenumber
+- $\omega_0 = \frac{2\pi c}{\lambda_0}$ is the central angular frequency
+- $v$ is the group velocity of the packet
+
+### Frequency Domain Representation
+
+In the frequency domain, the Gaussian wave packet has a Gaussian spectrum centered around the central frequency $\omega_0$:
+
+$$\tilde{\Psi}(\omega) = \tilde{A} \cdot e^{-\frac{(\omega-\omega_0)^2}{2\sigma_{\omega}^2}}$$
+
+Where $\sigma_{\omega} = \frac{1}{\sigma}$ due to the Heisenberg uncertainty principle.
+
+### Diffraction of Wave Packets
+
+When a Gaussian wave packet passes through a diffraction grating, each frequency component diffracts according to the grating equation:
+
+$$d \sin\theta_m(\lambda) = m\lambda$$
+
+Since different wavelengths diffract at different angles, the result is a series of dispersed wave packets at each diffraction order. The intensity pattern can be calculated by integrating over all wavelengths in the packet:
+
+$$I(\theta) = \int_0^{\infty} S(\lambda) \cdot I_{\lambda}(\theta) \, d\lambda$$
+
+Where:
+- $S(\lambda)$ is the spectral intensity of the wave packet
+- $I_{\lambda}(\theta)$ is the diffraction pattern for a single wavelength $\lambda$
+
+In the simulation, this is approximated by sampling the Gaussian spectrum at discrete wavelengths:
+
+```python
+# Sample wavelengths from the Gaussian spectrum
+wavelengths = np.linspace(center_wavelength - 4*width, center_wavelength + 4*width, num_samples)
+spectrum = np.exp(-0.5 * ((wavelengths - center_wavelength) / width) ** 2)
+
+# Calculate total intensity pattern
+for i, wavelength in enumerate(wavelengths):
+    _, intensity = self.calculate_intensity_pattern(wavelength, num_slits=num_slits)
+    total_intensity += intensity * spectrum[i]
+```
+
+### Group Velocity and Dispersion
+
+In a dispersive medium, different wavelength components travel at different phase velocities, causing the wave packet to spread out over time. This is described by the dispersion relation:
+
+$$v_g = \frac{d\omega}{dk} = c \cdot \left(1 - \lambda \frac{dn}{d\lambda}\right)$$
+
+Where $n$ is the refractive index of the medium. In vacuum, all wavelengths travel at the same speed $c$, so the wave packet maintains its shape.
+
+### Wave-Particle Duality Demonstration
+
+The Gaussian wave packet model provides a more realistic representation of the wave-particle duality:
+- The wave nature is demonstrated by the interference pattern
+- The particle-like nature is represented by the localized wave packet
+- The width of the packet in position space is inversely related to its width in momentum/wavelength space, in accordance with the Heisenberg uncertainty principle
+
 ## Spectrum Visualization
 
 For visualization with multiple wavelengths, the simulation calculates intensity patterns for each individual wavelength and combines them to form the final pattern:
