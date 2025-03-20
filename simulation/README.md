@@ -1,75 +1,136 @@
 # Diffraction Grating Simulation
 
-This Python program simulates the diffraction pattern created when light passes through a diffraction grating, displaying how different wavelengths of light create distinct patterns on a screen.
+A modular simulation of light passing through a diffraction grating and displaying the resulting pattern.
+
+## Overview
+
+This simulation demonstrates the principles of diffraction and interference of light passing through a diffraction grating. It provides various visualizations and interactive tools to explore how different parameters affect the diffraction pattern.
 
 ## Features
 
-- Calculates and displays the diffraction pattern from multiple slits
-- Supports overlapping multiple wavelengths on the same graph for comparison
-- Visualizes diffraction patterns as they would appear on a wall/screen
-- Shows diffraction maxima positions based on the grating equation
-- Includes 2D visualization of how the pattern would look on a screen
+- **Modular Architecture**: Organized into core physics, visualization, and UI components
+- **Interactive Mode**: Adjust parameters in real-time using sliders
+- **Multiple Simulation Types**:
+  - Interactive simulation (finite or infinite slits)
+  - Visible spectrum simulation
+  - Monochromatic light simulation
+  - Custom spectrum simulation
+  - Comparison of different slit numbers
+- **Visualization Options**:
+  - 1D intensity plots
+  - 2D wall pattern visualization
+  - Diffraction maxima indicators
+  - Combined intensity for multiple wavelengths
 
-## Requirements
+## Installation
 
-This project uses Poetry for dependency management. All necessary dependencies are already defined in the `pyproject.toml` file.
+No special installation required beyond standard Python scientific packages:
 
-Required packages:
-- numpy
-- matplotlib
-- scipy
+```bash
+pip install numpy matplotlib scipy
+```
 
 ## Usage
 
-1. Run the simulation:
+### Interactive Simulation
+
+Run the interactive simulation with:
 
 ```bash
-python diffraction_grating_simulation.py
+python run_simulation.py --mode interactive
 ```
 
-2. The program will generate three plots:
-   - A comparison of diffraction patterns for the full visible spectrum
-   - A comparison of RGB wavelengths
-   - A detailed view of a single wavelength
+For a perfect diffraction grating (infinite slits):
+
+```bash
+python run_simulation.py --mode interactive-infinite
+```
+
+### Fixed Simulations
+
+#### Visible Spectrum
+
+```bash
+python run_simulation.py --mode spectrum
+```
+
+#### Monochromatic Light
+
+```bash
+python run_simulation.py --mode monochromatic --wavelength 532nm
+```
+
+#### Custom Spectrum
+
+```bash
+python run_simulation.py --mode custom --spectrum-type gaussian --center 550nm --width 30nm
+```
+
+For a double-peak spectrum:
+
+```bash
+python run_simulation.py --mode custom --spectrum-type double-peak --center 450nm --center2 650nm --width 20nm
+```
+
+#### Compare Different Slit Numbers
+
+```bash
+python run_simulation.py --mode compare --wavelength 632.8nm
+```
+
+### Common Parameters
+
+These parameters can be used with any simulation mode:
+
+- `--spacing`: Grating spacing in meters (default: 1.67e-6 for 600 lines/mm)
+- `--distance`: Distance to screen in meters (default: 1.0)
+- `--width`: Screen width in meters (default: 1.0)
+- `--slits`: Number of slits (default: 100)
+
+### Wavelength Specification
+
+Wavelengths can be specified in different formats:
+
+- With units: `500nm`, `0.5um`, `0.5µm`
+- Direct value in meters: `500e-9`
+
+## Code Structure
+
+- `core/`: Core physics calculations
+  - `physics.py`: Diffraction intensity calculations
+  - `simulator.py`: Pre-defined simulation scenarios
+  - `config.py`: Constants and default values
+- `visualization/`: Visualization components
+  - `plotter.py`: Functions for plotting diffraction patterns
+- `ui/`: User interface components
+  - `interactive.py`: Interactive simulation with sliders
 
 ## Physics Background
 
-The simulation is based on the diffraction grating equation:
+The simulation is based on the principles of Fraunhofer diffraction. For a diffraction grating with N slits and spacing d, the intensity at angle θ is given by:
 
-d sin θ = m λ
+$I(\theta) = I_0 \left( \frac{\sin(N \delta /2)}{\sin(\delta/2)} \right)^2$
 
-Where:
-- d = spacing between slits
-- θ = angle of diffraction
-- m = order of diffraction (0, ±1, ±2, ...)
-- λ = wavelength of light
+where $\delta = \frac{2\pi d \sin\theta}{\lambda}$ is the phase difference between adjacent slits, and λ is the wavelength of light.
 
-For multiple slits, the intensity pattern follows:
+The positions of intensity maxima are given by the grating equation:
 
-I = I₀ (sin(Nδ/2) / sin(δ/2))²
+$d \sin\theta = m\lambda$
 
-Where:
-- I₀ = maximum intensity
-- N = number of slits
-- δ = phase difference between adjacent slits
+where m is an integer representing the order of diffraction.
 
-## Customization
+## Examples
 
-You can modify the parameters in the code to experiment with different:
-- Wavelengths (by changing the `wavelengths` lists)
-- Grating spacings (by changing `grating_spacing`)
-- Number of slits (by changing `num_slits`)
-- Screen distances (by changing `distance_to_screen`)
-- Screen sizes (by changing `screen_width`)
+### Comparing Finite vs Infinite Slits
 
-To plot your own custom wavelength combinations, modify the main function or create your own by calling:
+- Finite slits (e.g., 100): `python run_simulation.py --mode monochromatic --slits 100`
+- Infinite slits: `python run_simulation.py --mode monochromatic-infinite`
 
-```python
-plot_diffraction_pattern(
-    wavelengths=[your_wavelengths_here],
-    colors=[your_colors_here],
-    labels=[your_labels_here],
-    grating_spacing=your_spacing,
-    num_slits=your_number_of_slits
-)
-```
+### Different Grating Spacings
+
+- 600 lines/mm: `python run_simulation.py --mode spectrum --spacing 1.67e-6`
+- 1200 lines/mm: `python run_simulation.py --mode spectrum --spacing 0.83e-6`
+
+## License
+
+This project is open source and available under the MIT License.
