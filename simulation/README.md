@@ -37,7 +37,7 @@ pip install numpy matplotlib scipy
 IMPORTANT: Always run the simulation from the ROOT directory of the project, not from inside the simulation folder!
 
 ```bash
-python simulation/run_simulation.py [options]
+python simulation/run.py [options]
 ```
 
 ### Interactive Simulation
@@ -45,13 +45,13 @@ python simulation/run_simulation.py [options]
 Run the interactive simulation with:
 
 ```bash
-python simulation/run_simulation.py --mode interactive
+python simulation/run.py --mode interactive
 ```
 
 For a perfect diffraction grating (infinite slits):
 
 ```bash
-python simulation/run_simulation.py --mode interactive-infinite
+python simulation/run.py --mode interactive-infinite
 ```
 
 ### Fixed Simulations
@@ -59,43 +59,43 @@ python simulation/run_simulation.py --mode interactive-infinite
 #### Visible Spectrum
 
 ```bash
-python simulation/run_simulation.py --mode spectrum
+python simulation/run.py --mode spectrum
 ```
 
 For a perfect grating with infinite slits:
 
 ```bash
-python simulation/run_simulation.py --mode spectrum-infinite
+python simulation/run.py --mode spectrum-infinite
 ```
 
 #### Monochromatic Light
 
 ```bash
-python simulation/run_simulation.py --mode monochromatic --wavelength 532nm
+python simulation/run.py --mode monochromatic --wavelength 532nm
 ```
 
 For a perfect grating with infinite slits:
 
 ```bash
-python simulation/run_simulation.py --mode monochromatic-infinite --wavelength 632.8nm
+python simulation/run.py --mode monochromatic-infinite --wavelength 632.8nm
 ```
 
 #### Custom Spectrum
 
 ```bash
-python simulation/run_simulation.py --mode custom --spectrum-type gaussian --center 550nm --spectrum-width 30nm
+python simulation/run.py --mode custom --spectrum-type gaussian --center 550nm --spectrum-width 30nm
 ```
 
 For a double-peak spectrum:
 
 ```bash
-python simulation/run_simulation.py --mode custom --spectrum-type double-peak --center 450nm --center2 650nm --spectrum-width 20nm
+python simulation/run.py --mode custom --spectrum-type double-peak --center 450nm --center2 650nm --spectrum-width 20nm
 ```
 
 #### Compare Different Slit Numbers
 
 ```bash
-python simulation/run_simulation.py --mode compare --wavelength 632.8nm
+python simulation/run.py --mode compare --wavelength 632.8nm
 ```
 
 ### Common Parameters
@@ -152,22 +152,22 @@ where m is an integer representing the order of diffraction.
 
 - Finite slits (e.g., 100): 
   ```bash
-  python simulation/run_simulation.py --mode monochromatic --slits 100
+  python simulation/run.py --mode monochromatic --slits 100
   ```
 - Infinite slits: 
   ```bash
-  python simulation/run_simulation.py --mode monochromatic-infinite
+  python simulation/run.py --mode monochromatic-infinite
   ```
 
 ### Different Grating Spacings
 
 - 600 lines/mm: 
   ```bash
-  python simulation/run_simulation.py --mode spectrum --spacing 1.67e-6
+  python simulation/run.py --mode spectrum --spacing 1.67e-6
   ```
 - 1200 lines/mm: 
   ```bash
-  python simulation/run_simulation.py --mode spectrum --spacing 0.83e-6
+  python simulation/run.py --mode spectrum --spacing 0.83e-6
   ```
 
 ## Infinite Slits Approximation

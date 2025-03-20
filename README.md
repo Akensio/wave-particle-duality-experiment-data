@@ -26,7 +26,7 @@ A repository containing simulation and experiment data related to wave-particle 
 Always run from the ROOT directory:
 
 ```bash
-python simulation/run_simulation.py [options]
+python simulation/run.py [options]
 ```
 
 For detailed usage and parameters, see [simulation README](simulation/README.md).
