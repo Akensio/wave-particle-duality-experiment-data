@@ -40,7 +40,7 @@ python -m experiment.analyze_black_body_radiation
 python -m experiment.analyze_dispersion
 ```
 
-Outputs and generated plots will be saved to the `out/` directory.
+Outputs and generated plots will be saved to the `experiment/out/` directory.
 
 ## Data Structure
 

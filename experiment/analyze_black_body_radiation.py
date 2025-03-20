@@ -18,6 +18,8 @@ from scipy import constants
 from common.odr_fit import perform_odr_fit, plot_odr_fit
 
 datafile = os.path.join(os.path.dirname(__file__), "data", "black_body_radiation_spectrum.xlsx")
+outdir = os.path.join(os.path.dirname(__file__), "out")
+os.makedirs(outdir, exist_ok=True)
 
 
 def main() -> None:
@@ -114,7 +116,7 @@ def main() -> None:
         title="Resistance Measurement (Four-Wire Method)",
     )
 
-    plt.savefig("out/resistance_fit.png", dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(outdir, "resistance_fit.png"), dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -333,7 +335,7 @@ def main() -> None:
         title="Wien's Displacement Law: λ_max vs 1/T",
     )
     
-    plt.savefig("out/wien_law_fit.png", dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(outdir, "wien_law_fit.png"), dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 

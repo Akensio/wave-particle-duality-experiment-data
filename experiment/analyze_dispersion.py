@@ -13,6 +13,7 @@ from numpy.typing import NDArray
 import matplotlib.pyplot as plt
 
 datafile = os.path.join(os.path.dirname(__file__), "data", "dispersion.xlsx")
+outdir = os.path.join(os.path.dirname(__file__), "out")
 
 
 def main():
@@ -132,7 +133,7 @@ def main():
         "Wavelength (pm)",
         "Radius (mm)",
         "r1 vs wavelength",
-        "out/r1_vs_wavelength.png",
+        os.path.join(outdir, "r1_vs_wavelength.png"),
     )
     plt.close(fig)
 
@@ -148,7 +149,7 @@ def main():
         "Wavelength (pm)",
         "Radius (mm)",
         "r2 vs wavelength",
-        "out/r2_vs_wavelength.png",
+        os.path.join(outdir, "r2_vs_wavelength.png"),
     )
     plt.close(fig)
 
