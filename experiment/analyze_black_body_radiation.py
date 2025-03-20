@@ -3,11 +3,10 @@
 Black Body Radiation Spectrum Analysis
 
 This script analyzes experimental data from a black body radiation spectrum experiment
-and fits it to Planck's law to determine the temperature of the black body.
+and fits it to Wien's law.
 """
 
 import os
-from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
