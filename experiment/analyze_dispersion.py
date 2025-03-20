@@ -16,9 +16,6 @@ datafile = os.path.join(os.path.dirname(__file__), "data", "dispersion.xlsx")
 
 
 def main():
-    # Load data
-    df = pd.read_excel(datafile)
-
     #########################################################
     # Wavelength calculations
     #########################################################
