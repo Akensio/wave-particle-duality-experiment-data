@@ -3,8 +3,13 @@
 Main script to run the diffraction grating simulation with various options.
 """
 
+import sys
+import os
 import argparse
 import numpy as np
+
+# Add parent directory to path for imports to work
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from simulation.ui.interactive import run_interactive_simulation
 from simulation.core.simulator import DiffractionSimulator
@@ -93,7 +98,7 @@ def main():
                               help='Type of spectrum to generate (default: gaussian)')
     spectrum_group.add_argument('--center', type=str, default='550nm',
                               help='Center wavelength for Gaussian spectrum (default: 550nm)')
-    spectrum_group.add_argument('--width', type=str, default='50nm',
+    spectrum_group.add_argument('--spectrum-width', type=str, default='50nm',
                               help='Width (standard deviation) for spectrum (default: 50nm)')
     spectrum_group.add_argument('--center2', type=str, default='650nm',
                               help='Second center wavelength for double-peak spectrum (default: 650nm)')
@@ -139,7 +144,7 @@ def main():
     elif args.mode == 'custom' or args.mode == 'custom-infinite':
         # Parse spectrum parameters
         center = parse_wavelength(args.center)
-        width = parse_wavelength(args.width)
+        width = parse_wavelength(args.spectrum_width)
         
         if args.spectrum_type == 'gaussian':
             intensity_function = gaussian_spectrum(center, width)

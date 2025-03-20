@@ -1,22 +1,82 @@
-# Wave-Particle Duality Experiment
+# Wave-Particle Duality Experiment Data
 
-This repository contains tools for exploring and analyzing wave-particle duality phenomena through both simulation and experimental data analysis.
+This repository contains code and data for experiments related to wave-particle duality.
+
+## Diffraction Grating Simulation
+
+A modular simulation of light passing through a diffraction grating, demonstrating wave properties of light.
+
+### Key Features
+- Interactive diffraction pattern visualization
+- Support for finite and infinite slits ("perfect" diffraction grating)
+- Customizable wavelengths, grating spacing, and other parameters
+- Visualization of how different spectra appear after diffraction
+
+### Running the Simulation
+
+**IMPORTANT: Always run the simulation from the ROOT directory of the project:**
+
+```bash
+python simulation/run_simulation.py [options]
+```
+
+#### Interactive Mode with Infinite Slits
+
+To run the perfect diffraction grating simulation with infinite slits:
+
+```bash
+python simulation/run_simulation.py --mode interactive-infinite
+```
+
+This will allow you to:
+- Control the grating spacing
+- Select different wavelengths
+- See the resulting diffraction pattern in real-time
+- Visualize how the pattern would appear on a wall/screen
+
+#### Other Simulation Modes
+
+There are several other simulation modes available:
+
+```bash
+# Standard interactive mode (finite slits)
+python simulation/run_simulation.py --mode interactive
+
+# Visible spectrum simulation
+python simulation/run_simulation.py --mode spectrum
+python simulation/run_simulation.py --mode spectrum-infinite  # With infinite slits
+
+# Single wavelength simulation
+python simulation/run_simulation.py --mode monochromatic --wavelength 532nm
+python simulation/run_simulation.py --mode monochromatic-infinite --wavelength 532nm  # With infinite slits
+
+# Custom spectrum simulation
+python simulation/run_simulation.py --mode custom --spectrum-type gaussian --center 550nm --spectrum-width 30nm
+python simulation/run_simulation.py --mode custom-infinite --spectrum-type gaussian --center 550nm --spectrum-width 30nm  # With infinite slits
+
+# Compare different numbers of slits
+python simulation/run_simulation.py --mode compare --wavelength 632.8nm
+```
+
+For detailed documentation, see the [simulation README](simulation/README.md).
+
+## Requirements
+
+The simulation requires the following Python packages:
+- numpy
+- matplotlib
+- scipy
+
+Install them with:
+```bash
+pip install numpy matplotlib scipy
+```
 
 ## Repository Structure
 
 - **experiment/** - Analysis scripts and data for physical experiments
 - **simulation/** - Diffraction grating simulation tools
 - **common/** - Shared utilities used by both components
-
-## Requirements
-
-This project uses Poetry for dependency management. All necessary dependencies are already defined in the `pyproject.toml` file.
-
-Required packages:
-- numpy
-- matplotlib
-- scipy
-- pandas
 
 ## Getting Started
 
