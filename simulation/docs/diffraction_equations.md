@@ -8,7 +8,7 @@ The simulation models diffraction patterns created when light passes through mul
 
 ### Multiple Slit Interference
 
-For a grating with N slits of spacing d, the intensity pattern is given by:
+For a grating with N slits of spacing d, the intensity pattern on a far screen is given by:
 
 $$I(\theta) = I_0 \left( \frac{\sin(N\delta/2)}{\sin(\delta/2)} \right)^2$$
 
@@ -52,9 +52,6 @@ The simulation models light diffraction onto a semi-circular screen at an effect
 
 - Angles range from -π/2 to +π/2 radians (-90° to +90°)
 - The diffraction pattern is plotted directly against the angle θ
-- No approximation of small angles is needed
-
-This approach better captures the true angular distribution of diffracted light, which is fundamental to the physics of diffraction.
 
 ### Infinite Slit Approximation
 
