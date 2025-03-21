@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, RadioButtons
+from matplotlib.widgets import Slider
 from matplotlib.gridspec import GridSpec
 from functools import partial
 
@@ -19,7 +19,6 @@ class ContinuousSpectrumSimulation:
         self.num_wavelengths = 200  # Number of wavelength samples
         self.max_order = 1  # Only consider first order diffraction
         self.wavelength_range = (380e-9, 3000e-9)  # Extended range up to 3000nm
-        self.spectrum_type = "blackbody"  # Default spectrum type
         
         # Create physics model
         self.physics = ContinuousSpectrumPhysics(self.grating_spacing)
@@ -55,7 +54,7 @@ class ContinuousSpectrumSimulation:
         )
 
     def _create_controls(self):
-        """Create sliders and radio buttons for interaction."""
+        """Create sliders for interaction."""
         # Create sliders
         slider_width = 0.65
         slider_height = 0.02
@@ -73,32 +72,14 @@ class ContinuousSpectrumSimulation:
         self.order_slider = Slider(ax_order, "Max Order", 1, 3, 
                                   valinit=self.max_order, valstep=1)
         
-        # Create spectrum type selection
-        ax_radio = plt.axes([0.02, 0.01, 0.15, 0.1])
-        self.radio = RadioButtons(
-            ax_radio, ('Blackbody', 'Uniform'), active=0
-        )
-        
         # Connect callbacks
         self.grating_slider.on_changed(self._update)
         self.temp_slider.on_changed(self._update)
         self.order_slider.on_changed(self._update)
-        self.radio.on_clicked(self._update_spectrum_type)
-
-    def _update_spectrum_type(self, label):
-        """Update the spectrum type based on radio button selection."""
-        self.spectrum_type = label.lower()
-        self._update_plots()
 
     def _get_spectrum_function(self):
-        """Get the appropriate spectrum function based on the selected type."""
-        if self.spectrum_type == "blackbody":
-            return partial(self.physics.planck_spectrum, temperature=self.temperature)
-        elif self.spectrum_type == "uniform":
-            return lambda wavelengths: np.ones_like(wavelengths)
-        else:
-            # Default to uniform spectrum
-            return lambda wavelengths: np.ones_like(wavelengths)
+        """Get the blackbody spectrum function."""
+        return partial(self.physics.planck_spectrum, temperature=self.temperature)
 
     def _update_plots(self):
         """Update all plots based on current parameters."""
@@ -143,11 +124,8 @@ class ContinuousSpectrumSimulation:
         self.ax_spectrum.set_ylabel("Relative Intensity", fontsize=10)
         self.ax_spectrum.grid(True, alpha=0.3)
         
-        # Set title based on spectrum type
-        if self.spectrum_type == "blackbody":
-            self.ax_spectrum.set_title(f"Blackbody Radiation Spectrum (T = {self.temperature} K)", fontsize=12)
-        else:
-            self.ax_spectrum.set_title("Uniform Intensity Spectrum", fontsize=12)
+        # Set title
+        self.ax_spectrum.set_title(f"Blackbody Radiation Spectrum (T = {self.temperature} K)", fontsize=12)
 
     def _add_visible_spectrum_background(self, ax):
         """Add color background to represent the visible spectrum."""

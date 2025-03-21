@@ -3,6 +3,7 @@ from typing import Tuple, List, Optional, Callable
 from numpy.typing import NDArray
 from simulation.core.physics.base import DiffractionPhysics
 from simulation.core.config import DEFAULT_NUM_POINTS
+from scipy import constants
 
 class ContinuousSpectrumPhysics(DiffractionPhysics):
     """Physics model for continuous wavelength spectrum diffraction."""
@@ -24,9 +25,10 @@ class ContinuousSpectrumPhysics(DiffractionPhysics):
             Normalized intensity values for the given wavelengths
         """
         # Physical constants
-        h = 6.626e-34  # Planck's constant (J·s)
-        c = 2.998e8    # Speed of light (m/s)
-        k_B = 1.381e-23  # Boltzmann constant (J/K)
+        h = constants.Planck  # Planck's constant (J·s)
+        c = constants.speed_of_light  # Speed of light (m/s)
+        k_B = constants.Boltzmann  # Boltzmann constant (J/K)
+        print(h, c, k_B)
         
         # Calculate Planck's law formula
         numerator = 2.0 * h * c**2
