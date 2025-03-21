@@ -18,7 +18,7 @@ class ContinuousSpectrumSimulation:
         self.temperature = 3000  # Starting temperature in Kelvin
         self.num_wavelengths = 200  # Number of wavelength samples
         self.max_order = 1  # Only consider first order diffraction
-        self.wavelength_range = (380e-9, 750e-9)  # Visible light range (m)
+        self.wavelength_range = (380e-9, 3000e-9)  # Extended range up to 3000nm
         self.spectrum_type = "blackbody"  # Default spectrum type
         
         # Create physics model
@@ -155,9 +155,16 @@ class ContinuousSpectrumSimulation:
         colors = ['violet', 'blue', 'cyan', 'green', 'yellow', 'orange', 'red']
         bounds = np.linspace(380, 750, len(colors) + 1)
         
-        # Add color bands to background
+        # Add color bands to background for visible spectrum only
         for i in range(len(colors)):
             ax.axvspan(bounds[i], bounds[i+1], color=colors[i], alpha=0.15)
+            
+        # Add a light shading for infrared region
+        ax.axvspan(750, 3000, color='lightgray', alpha=0.1, label='IR')
+        
+        # Add a vertical line to mark the boundary between visible and IR
+        ax.axvline(x=750, color='gray', linestyle='--', alpha=0.5)
+        ax.text(760, 0.95, 'IR', color='gray', fontsize=8)
 
     def _plot_diffraction_pattern(self, spectrum_function):
         """Calculate and plot the diffraction pattern for the current spectrum."""
