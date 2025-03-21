@@ -34,21 +34,22 @@ class WallPatternRenderer:
         if ax is None:
             ax = fig.add_axes([0.15, 0.02, 0.7, 0.15])
 
-        # Calculate the wall pattern
-        screen_width = physics.screen_width
-        wall_height = screen_width / 2
+        # Calculate the wall pattern on semi-circular screen
+        # Use angular coordinates from -pi/2 to pi/2
+        angular_width = np.pi  # Full angular width from -pi/2 to pi/2
+        wall_height = angular_width / 4  # Height in the same scale as angular width
         wall_y = np.linspace(-wall_height, wall_height, 50)
 
-        screen_positions = np.linspace(-screen_width / 2, screen_width / 2, DEFAULT_NUM_POINTS)
-        wall_pattern = np.zeros((len(wall_y), len(screen_positions), 3))
+        angles = np.linspace(-np.pi/2, np.pi/2, DEFAULT_NUM_POINTS)
+        wall_pattern = np.zeros((len(wall_y), len(angles), 3))
 
         for wl, color in zip(wavelengths, colors):
             # Get intensity pattern
-            positions, pattern = physics.calculate_intensity_pattern(wl, num_slits=num_slits)
+            theta, pattern = physics.calculate_intensity_pattern(wl, num_slits=num_slits)
 
             # Interpolate to common grid
-            pattern_interp = interp1d(positions, pattern, kind="linear", bounds_error=False, fill_value=0)
-            pattern_wall = pattern_interp(screen_positions)
+            pattern_interp = interp1d(theta, pattern, kind="linear", bounds_error=False, fill_value=0)
+            pattern_wall = pattern_interp(angles)
 
             # Create 2D pattern
             pattern_2d = np.tile(pattern_wall, (len(wall_y), 1))
@@ -64,8 +65,14 @@ class WallPatternRenderer:
 
         # Display the wall pattern
         ax.imshow(
-            wall_pattern, extent=[-screen_width / 2, screen_width / 2, -wall_height, wall_height], aspect="auto", interpolation="bilinear"
+            wall_pattern, extent=[-np.pi/2, np.pi/2, -wall_height, wall_height], aspect="auto", interpolation="bilinear"
         )
-        ax.set_xlabel("Position (m)")
-        ax.set_ylabel("Height (m)")
-        ax.set_title("Pattern on Wall")
+        ax.set_xlabel("Angle θ (radians)")
+        ax.set_ylabel("Height")
+        
+        # Add a secondary x-axis with angles in degrees
+        ax_deg = ax.twiny()
+        ax_deg.set_xlim(-90, 90)
+        ax_deg.set_xlabel("Angle θ (degrees)")
+        
+        ax.set_title("Pattern on Semi-Circular Screen")

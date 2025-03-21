@@ -6,9 +6,7 @@ from simulation.core.physics import DiffractionPhysics
 from simulation.visualization.wall_pattern import WallPatternRenderer
 from simulation.core.config import (
     DEFAULT_GRATING_SPACING,
-    DEFAULT_DISTANCE_TO_SCREEN,
     DEFAULT_NUM_SLITS,
-    DEFAULT_SCREEN_WIDTH,
     WAVELENGTH_OPTIONS,
     COLOR_MAP,
     DEFAULT_WAVELENGTHS,
@@ -22,13 +20,11 @@ class InteractiveSimulation:
         """Initialize the interactive simulation."""
         # Initialize parameters
         self.grating_spacing = DEFAULT_GRATING_SPACING
-        self.distance_to_screen = DEFAULT_DISTANCE_TO_SCREEN
         self.num_slits = DEFAULT_NUM_SLITS
-        self.screen_width = DEFAULT_SCREEN_WIDTH
         self.selected_wavelengths = DEFAULT_WAVELENGTHS.copy()
 
         # Create physics model
-        self.physics = DiffractionPhysics(self.grating_spacing, self.distance_to_screen, self.screen_width)
+        self.physics = DiffractionPhysics(self.grating_spacing)
 
         # Create visualizer components
         self.wall_renderer = WallPatternRenderer()
@@ -52,14 +48,10 @@ class InteractiveSimulation:
         """Create sliders, checkboxes, and radio buttons for interaction."""
         # Create sliders
         ax_grating = plt.axes([0.15, 0.17, 0.7, 0.02])
-        ax_distance = plt.axes([0.15, 0.13, 0.7, 0.02])
-        ax_slits = plt.axes([0.15, 0.09, 0.7, 0.02])
-        ax_width = plt.axes([0.15, 0.05, 0.7, 0.02])
+        ax_slits = plt.axes([0.15, 0.13, 0.7, 0.02])
 
         self.grating_slider = Slider(ax_grating, "Grating Spacing (µm)", 0.5, 10.0, valinit=self.grating_spacing * 1e6)
-        self.distance_slider = Slider(ax_distance, "Distance to Screen (m)", 0.1, 5.0, valinit=self.distance_to_screen)
         self.slits_slider = Slider(ax_slits, "Number of Slits", 2, 50, valinit=self.num_slits, valstep=1)
-        self.width_slider = Slider(ax_width, "Screen Width (m)", 0.2, 3.0, valinit=self.screen_width)
 
         # Create wavelength selection checkboxes
         ax_check = plt.axes([0.02, 0.45, 0.1, 0.2])
@@ -70,9 +62,7 @@ class InteractiveSimulation:
 
         # Connect callbacks
         self.grating_slider.on_changed(self._update)
-        self.distance_slider.on_changed(self._update)
         self.slits_slider.on_changed(self._update)
-        self.width_slider.on_changed(self._update)
         self.check.on_clicked(self._update_wavelengths)
 
     def _update_plots(self):
@@ -109,27 +99,27 @@ class InteractiveSimulation:
     def _plot_wavelengths(self, wavelengths, colors, labels):
         """Plot intensity patterns for individual wavelengths."""
         for i, (wavelength, color, label) in enumerate(zip(wavelengths, colors, labels)):
-            screen_positions, intensity = self.physics.calculate_intensity_pattern(wavelength, num_slits=self.num_slits)
+            angles, intensity = self.physics.calculate_intensity_pattern(wavelength, num_slits=self.num_slits)
 
-            self.ax1.plot(screen_positions, intensity, color=color, label=label)
+            self.ax1.plot(angles, intensity, color=color, label=label)
 
             # Add diffraction maxima markers
             maxima = self.physics.calculate_maxima_positions(wavelength)
-            for m, pos in maxima:
-                self.ax1.axvline(x=pos, color=color, linestyle="--", alpha=0.3)
+            for m, angle in maxima:
+                self.ax1.axvline(x=angle, color=color, linestyle="--", alpha=0.3)
 
     def _plot_combined_intensity(self, ax, wavelengths):
         """Plot the combined intensity from multiple wavelengths."""
-        positions, total = self._calculate_combined_intensity(wavelengths)
-        ax.plot(positions, total, "k-", linewidth=2)
+        angles, total = self._calculate_combined_intensity(wavelengths)
+        ax.plot(angles, total, "k-", linewidth=2)
 
     def _calculate_combined_intensity(self, wavelengths):
         """Calculate total intensity from multiple wavelengths."""
         # Get positions from first wavelength
-        positions, _ = self.physics.calculate_intensity_pattern(wavelengths[0], num_slits=self.num_slits)
+        angles, _ = self.physics.calculate_intensity_pattern(wavelengths[0], num_slits=self.num_slits)
 
         # Sum contributions from all wavelengths
-        total = np.zeros_like(positions)
+        total = np.zeros_like(angles)
         for wl in wavelengths:
             _, intensity = self.physics.calculate_intensity_pattern(wl, num_slits=self.num_slits)
             total += intensity
@@ -138,26 +128,32 @@ class InteractiveSimulation:
         if np.max(total) > 0:
             total = total / np.max(total)
 
-        return positions, total
+        return angles, total
 
     def _setup_plot_axes(self):
         """Configure axes labels, titles and ranges."""
         # Main plot
-        self.ax1.set_xlim(-self.screen_width / 2, self.screen_width / 2)
+        self.ax1.set_xlim(-np.pi/2, np.pi/2)
         self.ax1.set_ylim(0, 1.05)
-        self.ax1.set_xlabel("Position on Screen (m)")
+        self.ax1.set_xlabel("Angle θ (radians)")
         self.ax1.set_ylabel("Relative Intensity")
+        
+        # Add a secondary x-axis with angles in degrees
+        ax1_deg = self.ax1.twiny()
+        ax1_deg.set_xlim(-90, 90)
+        ax1_deg.set_xlabel("Angle θ (degrees)")
+        
         self.ax1.grid(True, alpha=0.3)
         self.ax1.legend()
 
         title = f"Diffraction Pattern ({self.num_slits} Slits)"
-        title += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} µm, Distance: {self.distance_to_screen:.1f} m"
+        title += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} µm, Semi-circular screen at infinite distance"
         self.ax1.set_title(title)
 
         # Total intensity plot
-        self.ax_total.set_xlim(-self.screen_width / 2, self.screen_width / 2)
+        self.ax_total.set_xlim(-np.pi/2, np.pi/2)
         self.ax_total.set_ylim(0, 1.05)
-        self.ax_total.set_xlabel("Position on Screen (m)")
+        self.ax_total.set_xlabel("Angle θ (radians)")
         self.ax_total.set_ylabel("Total Intensity")
         self.ax_total.grid(True, alpha=0.3)
         self.ax_total.set_title("Combined Intensity (Sum of All Selected Wavelengths)")
@@ -171,14 +167,10 @@ class InteractiveSimulation:
         """Update callback for sliders."""
         # Get values from sliders
         self.grating_spacing = self.grating_slider.val * 1e-6  # Convert from µm to m
-        self.distance_to_screen = self.distance_slider.val
-        self.screen_width = self.width_slider.val
         self.num_slits = int(self.slits_slider.val)
 
         # Update physics model parameters
         self.physics.grating_spacing = self.grating_spacing
-        self.physics.distance_to_screen = self.distance_to_screen
-        self.physics.screen_width = self.screen_width
 
         # Update title
         suptitle = "Interactive Diffraction Grating Simulation"

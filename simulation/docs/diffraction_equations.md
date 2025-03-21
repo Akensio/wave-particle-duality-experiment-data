@@ -8,7 +8,7 @@ The simulation models diffraction patterns created when light passes through mul
 
 ### Multiple Slit Interference
 
-For a grating with N slits of spacing d, the intensity pattern on a screen at distance L is given by:
+For a grating with N slits of spacing d, the intensity pattern is given by:
 
 $$I(\theta) = I_0 \left( \frac{\sin(N\delta/2)}{\sin(\delta/2)} \right)^2$$
 
@@ -30,7 +30,7 @@ intensity_factor = np.sin(num_slits * delta / 2)**2 / np.sin(delta / 2)**2
 
 ### Maxima Positions (Diffraction Orders)
 
-The positions of intensity maxima (bright spots) on the screen are determined by the grating equation:
+The positions of intensity maxima (bright spots) are determined by the grating equation:
 
 $$d \sin\theta_m = m\lambda$$
 
@@ -44,8 +44,17 @@ In the code, this is implemented in `DiffractionPhysics.calculate_maxima_positio
 # Check if the maximum is physically possible
 if abs(m * wavelength / self.grating_spacing) < 1:
     angle = np.arcsin(m * wavelength / self.grating_spacing)
-    pos = self.distance_to_screen * np.tan(angle)
 ```
+
+### Semi-Circular Screen at Infinite Distance
+
+The simulation models light diffraction onto a semi-circular screen at an effectively infinite distance from the diffraction grating. This better represents the angular nature of diffraction:
+
+- Angles range from -π/2 to +π/2 radians (-90° to +90°)
+- The diffraction pattern is plotted directly against the angle θ
+- No approximation of small angles is needed
+
+This approach better captures the true angular distribution of diffracted light, which is fundamental to the physics of diffraction.
 
 ### Infinite Slit Approximation
 
@@ -57,14 +66,13 @@ Where:
 - $w$ is a small width parameter to create sharp peaks
 - $\theta_m$ are the angles satisfying the grating equation
 
-In the code, this is implemented in `InfiniteSlitDiffractionPhysics.calculate_intensity_pattern()`:
+In the code, this is implemented in the `_calculate_large_slit_pattern()` method:
 
 ```python
 # Add peaks at each maximum location
-for m, pos in maxima:
+for m, angle in maxima:
     # Create a sharp peak around that position
-    width = 0.01  # This is in meters and defines the sharpness of the peak
-    intensity += np.exp(-0.5 * ((screen_positions - pos) / width) ** 2)
+    intensity += np.exp(-0.5 * ((angles - angle) / peak_width) ** 2)
 ```
 
 ## Spectrum Visualization
