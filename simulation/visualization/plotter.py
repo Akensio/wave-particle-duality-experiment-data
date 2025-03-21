@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from typing import List, Tuple, Optional
 
 from simulation.core.physics import DiffractionPhysics
@@ -33,25 +34,31 @@ class DiffractionVisualizer:
 
         # Plot each wavelength
         for i, wavelength in enumerate(wavelengths):
-            screen_positions, intensity = physics.calculate_intensity_pattern(wavelength, num_slits=num_slits)
+            angles, intensity = physics.calculate_intensity_pattern(wavelength, num_slits=num_slits)
 
-            ax.plot(screen_positions, intensity, color=colors[i], label=labels[i], linewidth=2)
+            ax.plot(angles, intensity, color=colors[i], label=labels[i], linewidth=2)
 
             # Add markers for diffraction maxima if requested
             if show_maxima:
                 maxima = physics.calculate_maxima_positions(wavelength, max_order)
 
-                for m, pos in maxima:
-                    ax.axvline(x=pos, color=colors[i], linestyle="--", alpha=0.3)
+                for m, angle in maxima:
+                    ax.axvline(x=angle, color=colors[i], linestyle="--", alpha=0.3)
                     # Only label maxima for the first wavelength to avoid clutter
                     if i == 0:
-                        ax.text(pos, 0.1, f"m={m}", ha="center", color="black")
+                        ax.text(angle, 0.1, f"m={m}", ha="center", color="black")
 
         # Set up the axes
-        ax.set_xlim(-physics.screen_width / 2, physics.screen_width / 2)
+        ax.set_xlim(-np.pi/2, np.pi/2)
         ax.set_ylim(0, 1.05)
-        ax.set_xlabel("Position on Screen (m)")
+        ax.set_xlabel("Angle θ (radians)")
         ax.set_ylabel("Relative Intensity")
+        
+        # Add a secondary x-axis with angles in degrees
+        ax_deg = ax.twiny()
+        ax_deg.set_xlim(-90, 90)
+        ax_deg.set_xlabel("Angle θ (degrees)")
+        
         ax.grid(True, alpha=0.3)
         ax.legend()
 
@@ -59,7 +66,7 @@ class DiffractionVisualizer:
         ax.set_title(
             f"Diffraction Pattern from {num_slits} Slits\n"
             f"Grating spacing: {physics.grating_spacing*1e6:.1f} μm, "
-            f"Distance to screen: {physics.distance_to_screen:.1f} m"
+            f"Semi-circular screen at infinite distance"
         )
 
         # Add a 2D wall pattern visualization if requested
