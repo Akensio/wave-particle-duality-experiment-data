@@ -18,7 +18,7 @@ class ContinuousSpectrumSimulation:
         self.grating_spacing = DEFAULT_GRATING_SPACING
         self.temperature = 3000  # Starting temperature in Kelvin
         self.num_wavelengths = 200  # Number of wavelength samples
-        self.current_order = 1  # Current diffraction order to display
+        self.num_orders = 1  # Number of diffraction orders to display
         self.wavelength_range = (380e-9, 3000e-9)  # Extended range up to 3000nm
         self.max_order = 10  # Maximum diffraction order
         
@@ -29,6 +29,18 @@ class ContinuousSpectrumSimulation:
         self._create_figure()
         self._create_controls()
         self._update_plots()
+
+    def _get_order_color(self, order):
+        """Get color for a specific order with fading effect from black to light gray."""
+        # Calculate darkness level - order 1 is black (0), max_order is light gray (0.8)
+        if order == 1:
+            # First order is pure black
+            return 'black'
+        else:
+            # Calculate the gray level (between 0.1 and 0.8)
+            # Higher orders are lighter gray
+            gray_level = max(0.1, 0.1 + (0.7 * (order - 1) / (5 - 1)))
+            return str(gray_level)
 
     def _create_figure(self):
         """Create the figure and axes for the interactive simulation."""
@@ -72,19 +84,19 @@ class ContinuousSpectrumSimulation:
         # Position sliders in the controls area
         ax_grating = plt.axes([slider_left, 0.15, slider_width, slider_height])
         ax_temp = plt.axes([slider_left, 0.11, slider_width, slider_height])
-        ax_order = plt.axes([slider_left, 0.03, slider_width, slider_height])
+        ax_orders = plt.axes([slider_left, 0.03, slider_width, slider_height])
         
         self.grating_slider = Slider(ax_grating, "Grating Spacing (µm)", 0.5, 10.0, 
                                     valinit=self.grating_spacing * 1e6)
         self.temp_slider = Slider(ax_temp, "Temperature (K)", 1000, 10000, 
                                  valinit=self.temperature, valstep=100)
-        self.order_slider = Slider(ax_order, "Order m", 1, self.max_order, 
-                                  valinit=self.current_order, valstep=1)
+        self.orders_slider = Slider(ax_orders, "Number of Orders", 1, self.max_order, 
+                                  valinit=self.num_orders, valstep=1)
         
         # Connect callbacks
         self.grating_slider.on_changed(self._update)
         self.temp_slider.on_changed(self._update)
-        self.order_slider.on_changed(self._update)
+        self.orders_slider.on_changed(self._update)
 
     def _get_spectrum_function(self):
         """Get the blackbody spectrum function."""
@@ -159,27 +171,46 @@ class ContinuousSpectrumSimulation:
         ax.text(760, 0.95, 'IR', color='gray', fontsize=8)
 
     def _plot_diffraction_pattern(self):
-        """Calculate and plot diffraction pattern using equation 3 from eqs2.md."""
+        """Calculate and plot diffraction pattern for multiple orders."""
         # Create angle array
         angles = np.linspace(-np.pi/2, np.pi/2, DEFAULT_NUM_POINTS)
         
-        # Use equation 3 to calculate the pattern for the selected order
-        intensity = self.physics.calculate_order_m_pattern(
-            angles,
-            self.temperature,
-            self.current_order
-        )
-        print(self.temperature, self.current_order, len(angles))
+        max_intensity = 0
+        all_intensities = []
         
-        # Plot the diffraction pattern
-        self.ax_diffraction.plot(angles, intensity, 'k-', linewidth=2)
+        # Calculate intensity for each order and store for later use
+        for order in range(1, self.num_orders + 1):
+            intensity = self.physics.calculate_order_m_pattern(
+                angles,
+                self.temperature,
+                order
+            )
+            all_intensities.append(intensity)
+            
+            # Track maximum intensity across all orders
+            max_intensity = max(max_intensity, np.max(intensity))
+        
+        # Plot each order with its own color - higher orders are lighter gray
+        for i, intensity in enumerate(all_intensities):
+            order = i + 1  # Order starts at 1
+            color = self._get_order_color(order)
+            
+            # Adjust line width - higher orders are thinner
+            line_width = max(0.5, 2.0 - (order - 1) * 0.3)
+            
+            # Plot without normalization
+            self.ax_diffraction.plot(angles, intensity, color=color, linewidth=line_width, 
+                                   label=f"Order m={order}")
         
         # Setup axis labels and limits
         self.ax_diffraction.set_xlim(-np.pi/2, np.pi/2)
-        self.ax_diffraction.set_ylim(0, np.max(intensity) * 1.05)
+        self.ax_diffraction.set_ylim(0, max_intensity * 1.05)  # Scale based on actual max value
         self.ax_diffraction.set_xlabel("Angle θ (radians)", fontsize=10)
-        self.ax_diffraction.set_ylabel("Relative Intensity", fontsize=10)
+        self.ax_diffraction.set_ylabel("Intensity", fontsize=10)
         self.ax_diffraction.grid(True, alpha=0.3)
+        
+        # Add a legend for the different orders
+        self.ax_diffraction.legend(loc='upper right', fontsize=9)
         
         # Add a secondary x-axis with angles in degrees
         ax_deg = self.ax_diffraction.twiny()
@@ -191,7 +222,7 @@ class ContinuousSpectrumSimulation:
         title_str = (
             f"Grating spacing: {self.grating_spacing*1e6:.1f} μm, "
             f"Temperature: {self.temperature} K, "
-            f"Order m: {self.current_order}"
+            f"Number of orders: {self.num_orders}"
         )
         self.title_text.set_text(title_str)
 
@@ -200,7 +231,7 @@ class ContinuousSpectrumSimulation:
         # Get values from sliders
         self.grating_spacing = self.grating_slider.val * 1e-6  # Convert from µm to m
         self.temperature = self.temp_slider.val
-        self.current_order = int(self.order_slider.val)
+        self.num_orders = int(self.orders_slider.val)
         
         # Update physics model parameters
         self.physics.grating_spacing = self.grating_spacing
