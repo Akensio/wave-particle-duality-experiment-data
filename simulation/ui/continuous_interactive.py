@@ -20,6 +20,7 @@ class ContinuousSpectrumSimulation:
         self.num_wavelengths = 200  # Number of wavelength samples
         self.current_order = 1  # Current diffraction order to display
         self.wavelength_range = (380e-9, 3000e-9)  # Extended range up to 3000nm
+        self.max_order = 10  # Maximum diffraction order
         
         # Create physics model
         self.physics = ContinuousSpectrumPhysics(self.grating_spacing)
@@ -77,7 +78,7 @@ class ContinuousSpectrumSimulation:
                                     valinit=self.grating_spacing * 1e6)
         self.temp_slider = Slider(ax_temp, "Temperature (K)", 1000, 10000, 
                                  valinit=self.temperature, valstep=100)
-        self.order_slider = Slider(ax_order, "Order m", 1, 3, 
+        self.order_slider = Slider(ax_order, "Order m", 1, self.max_order, 
                                   valinit=self.current_order, valstep=1)
         
         # Connect callbacks
@@ -135,13 +136,10 @@ class ContinuousSpectrumSimulation:
         
         # Setup axis labels and limits
         self.ax_spectrum.set_xlim(self.wavelength_range[0] * 1e9, self.wavelength_range[1] * 1e9)
-        self.ax_spectrum.set_ylim(0, 1.05)
+        self.ax_spectrum.set_ylim(0, np.max(intensities) * 1.05)
         self.ax_spectrum.set_xlabel("Wavelength (nm)", fontsize=10)
         self.ax_spectrum.set_ylabel("Relative Intensity", fontsize=10)
         self.ax_spectrum.grid(True, alpha=0.3)
-        
-        # Set title
-        self.ax_spectrum.set_title(f"Blackbody Radiation Spectrum (T = {self.temperature} K)", fontsize=12)
 
     def _add_visible_spectrum_background(self, ax):
         """Add color background to represent the visible spectrum."""
@@ -178,7 +176,7 @@ class ContinuousSpectrumSimulation:
         
         # Setup axis labels and limits
         self.ax_diffraction.set_xlim(-np.pi/2, np.pi/2)
-        self.ax_diffraction.set_ylim(0, 1.05)
+        self.ax_diffraction.set_ylim(0, np.max(intensity) * 1.05)
         self.ax_diffraction.set_xlabel("Angle θ (radians)", fontsize=10)
         self.ax_diffraction.set_ylabel("Relative Intensity", fontsize=10)
         self.ax_diffraction.grid(True, alpha=0.3)
@@ -187,11 +185,6 @@ class ContinuousSpectrumSimulation:
         ax_deg = self.ax_diffraction.twiny()
         ax_deg.set_xlim(-90, 90)
         ax_deg.set_xlabel("Angle θ (degrees)", fontsize=10)
-        
-        # Set title
-        self.ax_diffraction.set_title(
-            f"Diffraction Pattern Using Equation 3 (Order m = {self.current_order})", fontsize=12
-        )
 
     def _update_title(self):
         """Update the title text with current parameters."""

@@ -40,3 +40,8 @@ $$I_m(\theta) = \frac{2\pi c^2 h}{\lambda_m^5}\frac{1}{e^{\frac{hc}{\lambda_m k 
 = \frac{2\pi c^2 h}{\left(\frac{d \sin\theta}{m}\right)^5}\frac{1}{e^{\frac{hc}{\left(\frac{d \sin\theta}{m}\right) k T}} - 1}
 = \frac{2\pi c^2 h m^5}{d^5 \sin^5\theta}\frac{1}{e^{\frac{h c m}{d \sin\theta k T}} - 1} \tag{3}$$
 
+Now, we can calculate the total intensity at a specific angle with:
+
+$$I(\theta)=\sum_{m=1}^{\infty}{I_m(\theta)}
+
+For the simulation we will use only a small amount of numbers m

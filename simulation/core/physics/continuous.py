@@ -9,7 +9,7 @@ class ContinuousSpectrumPhysics(DiffractionPhysics):
     """Physics model for continuous wavelength spectrum diffraction."""
     
     def __init__(self, grating_spacing: float) -> None:
-        """Initialize with grating spacing."""
+        """Initialize with grating spacing. Grating spacing comes in meters."""
         super().__init__(grating_spacing)
         
     def planck_spectrum(self, wavelengths: NDArray[np.float64], temperature: float) -> NDArray[np.float64]:
@@ -33,10 +33,7 @@ class ContinuousSpectrumPhysics(DiffractionPhysics):
         numerator = 2.0 * h * c**2
         denominator = wavelengths**5 * (np.exp((h*c)/(wavelengths*k_B*temperature)) - 1.0)
         intensity = numerator / denominator
-        
-        # Normalize the intensity
-        if np.max(intensity) > 0:
-            return intensity / np.max(intensity)
+
         return intensity
     
     def calculate_order_m_pattern(
@@ -56,15 +53,9 @@ class ContinuousSpectrumPhysics(DiffractionPhysics):
         Returns:
             Intensity array for the given angles and diffraction order
         """
-        # Physical constants
-        h = constants.Planck
-        c = constants.speed_of_light
-        k_B = constants.Boltzmann
-
-        # Grating spacing comes in meters, convert to nm
         d = self.grating_spacing
 
-        wavelengths = np.abs(np.sin(angles)) * d
+        wavelengths = np.abs(np.sin(angles)) * d / order_m
 
         intensity = self.planck_spectrum(wavelengths, temperature)
 
