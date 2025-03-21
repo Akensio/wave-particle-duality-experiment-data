@@ -80,7 +80,6 @@ class WallPatternRenderer:
         # Add a secondary x-axis with angles in degrees
         ax_deg = ax.twiny()
         ax_deg.set_xlim(-90, 90)
-        ax_deg.set_xlabel("Angle θ (degrees)", labelpad=10, fontsize=10)
         
         # Add ticks with smaller fontsize
         ax.tick_params(axis='both', which='major', labelsize=8)

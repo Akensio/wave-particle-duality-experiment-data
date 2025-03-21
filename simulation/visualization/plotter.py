@@ -57,7 +57,6 @@ class DiffractionVisualizer:
         # Add a secondary x-axis with angles in degrees
         ax_deg = ax.twiny()
         ax_deg.set_xlim(-90, 90)
-        ax_deg.set_xlabel("Angle θ (degrees)")
         
         ax.grid(True, alpha=0.3)
         ax.legend()

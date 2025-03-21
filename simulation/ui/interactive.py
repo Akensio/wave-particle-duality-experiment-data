@@ -176,7 +176,6 @@ class InteractiveSimulation:
         # Add a secondary x-axis with angles in degrees
         ax1_deg = self.ax1.twiny()
         ax1_deg.set_xlim(-90, 90)
-        ax1_deg.set_xlabel("Angle θ (degrees)", fontsize=10)
         
         self.ax1.grid(True, alpha=0.3)
         
@@ -193,7 +192,6 @@ class InteractiveSimulation:
         # Add degree labels to total intensity axis
         ax_total_deg = self.ax_total.twiny()
         ax_total_deg.set_xlim(-90, 90)
-        ax_total_deg.set_xlabel("Angle θ (degrees)", fontsize=10)
 
     def _create_wall_pattern(self, wavelengths, colors):
         """Create the 2D wall pattern visualization."""

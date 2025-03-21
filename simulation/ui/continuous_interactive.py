@@ -44,17 +44,18 @@ class ContinuousSpectrumSimulation:
 
     def _create_figure(self):
         """Create the figure and axes for the interactive simulation."""
-        self.fig = plt.figure(figsize=(12, 14), constrained_layout=False)
+        self.fig = plt.figure(figsize=(12, 16), constrained_layout=False)
         
-        # Use GridSpec with spacings
-        gs = GridSpec(3, 1, figure=self.fig, height_ratios=[2, 2, 0.8], hspace=0.4)
+        # Use GridSpec with spacings - add a third plot for the sum
+        gs = GridSpec(4, 1, figure=self.fig, height_ratios=[2, 2, 2, 0.6], hspace=0.3)
         
         # Create axes
         self.ax_spectrum = self.fig.add_subplot(gs[0])  # Spectrum plot
         self.ax_diffraction = self.fig.add_subplot(gs[1])  # Diffraction pattern
+        self.ax_sum = self.fig.add_subplot(gs[2])  # Sum of orders plot
         
         # Create an empty axis for controls area
-        self.ax_controls = self.fig.add_subplot(gs[2])
+        self.ax_controls = self.fig.add_subplot(gs[3])
         self.ax_controls.axis('off')
         
         # Set specific margins
@@ -81,10 +82,10 @@ class ContinuousSpectrumSimulation:
         slider_height = 0.02
         slider_left = 0.25
         
-        # Position sliders in the controls area
-        ax_grating = plt.axes([slider_left, 0.15, slider_width, slider_height])
-        ax_temp = plt.axes([slider_left, 0.11, slider_width, slider_height])
-        ax_orders = plt.axes([slider_left, 0.03, slider_width, slider_height])
+        # Position sliders in the controls area - closer together
+        ax_grating = plt.axes([slider_left, 0.10, slider_width, slider_height])
+        ax_temp = plt.axes([slider_left, 0.06, slider_width, slider_height])
+        ax_orders = plt.axes([slider_left, 0.02, slider_width, slider_height])
         
         self.grating_slider = Slider(ax_grating, "Grating Spacing (µm)", 0.5, 10.0, 
                                     valinit=self.grating_spacing * 1e6)
@@ -107,6 +108,7 @@ class ContinuousSpectrumSimulation:
         # Clear axes
         self.ax_spectrum.clear()
         self.ax_diffraction.clear()
+        self.ax_sum.clear()
         
         # Sample wavelengths for the spectrum plot
         wavelengths = np.linspace(self.wavelength_range[0], self.wavelength_range[1], self.num_wavelengths)
@@ -215,7 +217,33 @@ class ContinuousSpectrumSimulation:
         # Add a secondary x-axis with angles in degrees
         ax_deg = self.ax_diffraction.twiny()
         ax_deg.set_xlim(-90, 90)
-        ax_deg.set_xlabel("Angle θ (degrees)", fontsize=10)
+        
+        # Plot the sum of all orders
+        self._plot_sum_of_orders(angles, all_intensities, max_intensity)
+
+    def _plot_sum_of_orders(self, angles, all_intensities, max_single_intensity):
+        """Plot the sum of all currently displayed orders."""
+        if len(all_intensities) == 0:
+            return
+            
+        # Calculate the sum of all intensities
+        total_intensity = np.zeros_like(angles)
+        for intensity in all_intensities:
+            total_intensity += intensity
+            
+        # Plot the sum with a thick black line
+        self.ax_sum.plot(angles, total_intensity, 'k-', linewidth=2.5)
+        
+        # Setup axis labels and limits
+        self.ax_sum.set_xlim(-np.pi/2, np.pi/2)
+        self.ax_sum.set_ylim(0, np.max(total_intensity) * 1.05)  # Scale to actual sum max
+        self.ax_sum.set_xlabel("Angle θ (radians)", fontsize=10)
+        self.ax_sum.set_ylabel("Total Intensity", fontsize=10)
+        self.ax_sum.grid(True, alpha=0.3)
+        
+        # Add a secondary x-axis with angles in degrees
+        ax_sum_deg = self.ax_sum.twiny()
+        ax_sum_deg.set_xlim(-90, 90)
 
     def _update_title(self):
         """Update the title text with current parameters."""
