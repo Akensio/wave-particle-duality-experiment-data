@@ -77,7 +77,6 @@ class InteractiveSimulation:
         self.slits_slider = Slider(ax_slits, "Number of Slits", 2, 50, valinit=self.num_slits, valstep=1)
 
         # Create wavelength selection checkboxes next to the sliders
-        # Reduce width while maintaining height
         ax_check = plt.axes([0.02, 0.01, 0.1, 0.1])
         check_labels = list(WAVELENGTH_OPTIONS.keys())
         active = [i for i, color in enumerate(check_labels) if color in self.selected_wavelengths]
