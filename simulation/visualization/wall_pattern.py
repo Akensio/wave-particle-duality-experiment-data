@@ -30,12 +30,13 @@ class WallPatternRenderer:
             num_slits: Number of slits
             ax: Optional axes to plot on (will create new if None)
         """
-        # Create inset axes for the wall pattern if not provided
+        # Use the provided axis instead of creating a new one
         if ax is None:
+            # Only create a new axis if not provided
             ax = fig.add_axes([0.15, 0.02, 0.7, 0.15])
 
         # Calculate the wall pattern on semi-circular screen
-        # Use angular coordinates from -pi/2 to pi/2
+        # Use angular coordinates from -pi/2 to +pi/2
         angular_width = np.pi  # Full angular width from -pi/2 to pi/2
         wall_height = angular_width / 4  # Height in the same scale as angular width
         wall_y = np.linspace(-wall_height, wall_height, 50)
@@ -63,16 +64,35 @@ class WallPatternRenderer:
         # Clip and normalize
         wall_pattern = np.clip(wall_pattern, 0, 1)
 
-        # Display the wall pattern
-        ax.imshow(
-            wall_pattern, extent=[-np.pi/2, np.pi/2, -wall_height, wall_height], aspect="auto", interpolation="bilinear"
+        # Clear the axis first
+        ax.clear()
+        
+        # Display the wall pattern with clear layout
+        im = ax.imshow(
+            wall_pattern, extent=[-np.pi/2, np.pi/2, -wall_height, wall_height], 
+            aspect="auto", interpolation="bilinear"
         )
-        ax.set_xlabel("Angle θ (radians)")
-        ax.set_ylabel("Height")
+        
+        # Ensure proper spacing for labels with reduced fontsize
+        ax.set_xlabel("Angle θ (radians)", labelpad=10, fontsize=10)
+        ax.set_ylabel("Height", labelpad=10, fontsize=10)
         
         # Add a secondary x-axis with angles in degrees
         ax_deg = ax.twiny()
         ax_deg.set_xlim(-90, 90)
-        ax_deg.set_xlabel("Angle θ (degrees)")
+        ax_deg.set_xlabel("Angle θ (degrees)", labelpad=10, fontsize=10)
         
-        ax.set_title("Pattern on Semi-Circular Screen")
+        # Add ticks with smaller fontsize
+        ax.tick_params(axis='both', which='major', labelsize=8)
+        ax_deg.tick_params(axis='both', which='major', labelsize=8)
+        
+        # Add colorbar explanation if multiple wavelengths - position at the bottom corner for visibility
+        if len(wavelengths) > 1:
+            # Create a small text hint using the smaller fontsize
+            ax.text(
+                0.99, 0.01, 
+                "Colors = wavelengths",
+                transform=ax.transAxes, fontsize=7, 
+                bbox=dict(facecolor='white', alpha=0.7, pad=2),
+                ha='right', va='bottom'
+            )

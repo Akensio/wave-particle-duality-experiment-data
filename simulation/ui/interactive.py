@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, CheckButtons, RadioButtons
+from matplotlib.gridspec import GridSpec
 
 from simulation.core.physics import DiffractionPhysics
 from simulation.visualization.wall_pattern import WallPatternRenderer
@@ -36,30 +37,53 @@ class InteractiveSimulation:
 
     def _create_figure(self):
         """Create the figure and axes for the interactive simulation."""
-        self.fig, (self.ax1, self.ax_total, self.ax2) = plt.subplots(3, 1, figsize=(12, 14), gridspec_kw={"height_ratios": [3, 1, 1]})
+        # Create figure with constrained layout for better spacing
+        self.fig = plt.figure(figsize=(12, 18), constrained_layout=False)
+        
+        # Use GridSpec with more space between plots
+        gs = GridSpec(4, 1, figure=self.fig, height_ratios=[3, 1, 1, 0.6], hspace=1.0)
+        
+        # Create axes with proper spacing
+        self.ax1 = self.fig.add_subplot(gs[0])  # Main diffraction pattern
+        self.ax_total = self.fig.add_subplot(gs[1])  # Combined intensity
+        self.ax2 = self.fig.add_subplot(gs[2])  # Wall pattern
+        
+        # Create an empty axis for controls area
+        self.ax_controls = self.fig.add_subplot(gs[3])
+        self.ax_controls.axis('off')  # Hide this axis, just use it for spacing
 
-        suptitle = "Interactive Diffraction Grating Simulation"
-        suptitle += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} μm, Number of slits: {self.num_slits}"
-
-        self.fig.suptitle(suptitle, fontsize=16)
-        plt.subplots_adjust(left=0.15, bottom=0.25, right=0.85, top=0.95, hspace=0.4)
+        # Set specific margins
+        self.fig.subplots_adjust(left=0.15, right=0.85, top=0.95, bottom=0.05, hspace=0.6)
+        
+        # Add subtitle at the top of the first plot
+        subtitle = f"Grating spacing: {self.grating_spacing*1e6:.1f} μm, Number of slits: {self.num_slits}"
+        self.subtitle_text = self.ax1.text(0.05, 0.98, subtitle, 
+                                         fontsize=10, ha='left', va='top',
+                                         transform=self.ax1.transAxes,
+                                         bbox=dict(facecolor='white', alpha=0.7, pad=5))
 
     def _create_controls(self):
         """Create sliders, checkboxes, and radio buttons for interaction."""
-        # Create sliders
-        ax_grating = plt.axes([0.15, 0.17, 0.7, 0.02])
-        ax_slits = plt.axes([0.15, 0.13, 0.7, 0.02])
+        # Create sliders with more space - position relative to figure instead of absolute coordinates
+        slider_width = 0.65
+        slider_height = 0.02
+        slider_left = 0.25
+        
+        # Position sliders in the controls area at the bottom
+        ax_grating = plt.axes([slider_left, 0.07, slider_width, slider_height])
+        ax_slits = plt.axes([slider_left, 0.03, slider_width, slider_height])
 
         self.grating_slider = Slider(ax_grating, "Grating Spacing (µm)", 0.5, 10.0, valinit=self.grating_spacing * 1e6)
         self.slits_slider = Slider(ax_slits, "Number of Slits", 2, 50, valinit=self.num_slits, valstep=1)
 
-        # Create wavelength selection checkboxes
-        ax_check = plt.axes([0.02, 0.45, 0.1, 0.2])
+        # Create wavelength selection checkboxes next to the sliders
+        ax_check = plt.axes([0.02, 0.03, 0.12, 0.06])
         check_labels = list(WAVELENGTH_OPTIONS.keys())
         active = [i for i, color in enumerate(check_labels) if color in self.selected_wavelengths]
-
+        
+        # Create the checkboxes with standard labels
         self.check = CheckButtons(ax_check, check_labels, [i in active for i in range(len(check_labels))])
-
+        
         # Connect callbacks
         self.grating_slider.on_changed(self._update)
         self.slits_slider.on_changed(self._update)
@@ -78,7 +102,8 @@ class InteractiveSimulation:
         labels = [f"{color} ({wl*1e9:.0f} nm)" for color, wl in zip(self.selected_wavelengths, wavelengths)]
 
         if not wavelengths:
-            self.ax1.set_title("Select at least one wavelength")
+            self.ax1.text(0.5, 0.5, "Select at least one wavelength", 
+                         ha='center', va='center', fontsize=12, transform=self.ax1.transAxes)
             return
 
         # Plot individual wavelengths
@@ -87,12 +112,22 @@ class InteractiveSimulation:
         # Plot total intensity if multiple wavelengths selected
         if len(wavelengths) > 1:
             self._plot_combined_intensity(self.ax_total, wavelengths)
+        else:
+            # If only one wavelength, still setup the axis but don't plot
+            self.ax_total.set_xlim(-np.pi/2, np.pi/2)
+            self.ax_total.set_ylim(0, 1.05)
+            self.ax_total.text(0, 0.5, "Select more than one wavelength to see combined intensity", 
+                               ha='center', va='center', fontsize=12)
 
         # Set up axes
         self._setup_plot_axes()
 
         # Create wall pattern visualization
         self._create_wall_pattern(wavelengths, colors)
+        
+        # Update subtitle
+        subtitle = f"Grating spacing: {self.grating_spacing*1e6:.1f} μm, Number of slits: {self.num_slits}"
+        self.subtitle_text.set_text(subtitle)
 
         self.fig.canvas.draw_idle()
 
@@ -101,7 +136,7 @@ class InteractiveSimulation:
         for i, (wavelength, color, label) in enumerate(zip(wavelengths, colors, labels)):
             angles, intensity = self.physics.calculate_intensity_pattern(wavelength, num_slits=self.num_slits)
 
-            self.ax1.plot(angles, intensity, color=color, label=label)
+            self.ax1.plot(angles, intensity, color=color, label=label, linewidth=2)
 
             # Add diffraction maxima markers
             maxima = self.physics.calculate_maxima_positions(wavelength)
@@ -135,33 +170,34 @@ class InteractiveSimulation:
         # Main plot
         self.ax1.set_xlim(-np.pi/2, np.pi/2)
         self.ax1.set_ylim(0, 1.05)
-        self.ax1.set_xlabel("Angle θ (radians)")
-        self.ax1.set_ylabel("Relative Intensity")
+        self.ax1.set_xlabel("Angle θ (radians)", fontsize=10)
+        self.ax1.set_ylabel("Relative Intensity", fontsize=10)
         
         # Add a secondary x-axis with angles in degrees
         ax1_deg = self.ax1.twiny()
         ax1_deg.set_xlim(-90, 90)
-        ax1_deg.set_xlabel("Angle θ (degrees)")
+        ax1_deg.set_xlabel("Angle θ (degrees)", fontsize=10)
         
         self.ax1.grid(True, alpha=0.3)
-        self.ax1.legend()
+        
+        # Move legend to the upper right corner inside the plot for more stability
+        self.ax1.legend(loc='upper right', fontsize=9)
 
-        title = f"Diffraction Pattern ({self.num_slits} Slits)"
-        title += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} µm, Semi-circular screen at infinite distance"
-        self.ax1.set_title(title)
-
-        # Total intensity plot
+        # Total intensity plot without title
         self.ax_total.set_xlim(-np.pi/2, np.pi/2)
         self.ax_total.set_ylim(0, 1.05)
-        self.ax_total.set_xlabel("Angle θ (radians)")
-        self.ax_total.set_ylabel("Total Intensity")
+        self.ax_total.set_xlabel("Angle θ (radians)", fontsize=10)
+        self.ax_total.set_ylabel("Total Intensity", fontsize=10)
         self.ax_total.grid(True, alpha=0.3)
-        self.ax_total.set_title("Combined Intensity (Sum of All Selected Wavelengths)")
+
+        # Add degree labels to total intensity axis
+        ax_total_deg = self.ax_total.twiny()
+        ax_total_deg.set_xlim(-90, 90)
+        ax_total_deg.set_xlabel("Angle θ (degrees)", fontsize=10)
 
     def _create_wall_pattern(self, wavelengths, colors):
         """Create the 2D wall pattern visualization."""
         self.wall_renderer.add_wall_pattern(self.fig, self.physics, wavelengths, colors, num_slits=self.num_slits, ax=self.ax2)
-        self.ax2.set_title("Pattern on Wall")
 
     def _update(self, val):
         """Update callback for sliders."""
@@ -171,12 +207,6 @@ class InteractiveSimulation:
 
         # Update physics model parameters
         self.physics.grating_spacing = self.grating_spacing
-
-        # Update title
-        suptitle = "Interactive Diffraction Grating Simulation"
-        suptitle += f"\nGrating spacing: {self.grating_spacing*1e6:.1f} μm, Number of slits: {self.num_slits}"
-
-        self.fig.suptitle(suptitle, fontsize=16)
 
         # Update plots
         self._update_plots()
