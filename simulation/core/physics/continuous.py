@@ -28,7 +28,6 @@ class ContinuousSpectrumPhysics(DiffractionPhysics):
         h = constants.Planck  # Planck's constant (J·s)
         c = constants.speed_of_light  # Speed of light (m/s)
         k_B = constants.Boltzmann  # Boltzmann constant (J/K)
-        print(h, c, k_B)
         
         # Calculate Planck's law formula
         numerator = 2.0 * h * c**2
@@ -40,62 +39,33 @@ class ContinuousSpectrumPhysics(DiffractionPhysics):
             return intensity / np.max(intensity)
         return intensity
     
-    def calculate_continuous_spectrum_pattern(
-        self, 
-        wavelength_range: Tuple[float, float], 
-        num_wavelengths: int, 
-        spectrum_function: Callable[[NDArray[np.float64]], NDArray[np.float64]],
-        max_order: int = 1,
-        num_points: int = DEFAULT_NUM_POINTS
-    ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    def calculate_order_m_pattern(
+        self,
+        angles: NDArray[np.float64],
+        temperature: float,
+        order_m: int
+    ) -> NDArray[np.float64]:
         """
-        Calculate diffraction pattern for a continuous spectrum with a given spectral distribution.
+        Calculate diffraction pattern using equation 3 from eqs2.md directly.
         
         Args:
-            wavelength_range: Tuple of (min_wavelength, max_wavelength) in meters
-            num_wavelengths: Number of discrete wavelengths to sample in the range
-            spectrum_function: Function that takes wavelengths and returns relative intensities
-            max_order: Maximum diffraction order to consider
-            num_points: Number of points in the output angle array
+            angles: Array of angles in radians
+            temperature: Temperature in Kelvin
+            order_m: Diffraction order (m)
             
         Returns:
-            Tuple of (angles, intensity) arrays
+            Intensity array for the given angles and diffraction order
         """
-        # Sample wavelengths from the range
-        wavelengths = np.linspace(wavelength_range[0], wavelength_range[1], num_wavelengths)
-        
-        # Get spectrum intensities for each wavelength
-        spectrum_intensities = spectrum_function(wavelengths)
-        
-        # Setup angle array
-        angles = np.linspace(-np.pi/2, np.pi/2, num_points)
-        
-        # Initialize total intensity
-        total_intensity = np.zeros_like(angles)
-        
-        # For each wavelength, calculate diffraction pattern and add to total
-        for wavelength, spectral_intensity in zip(wavelengths, spectrum_intensities):
-            # Only consider the specified diffraction order
-            for m in range(1, max_order + 1):  # Starting from order 1, ignoring 0
-                if m * wavelength / self.grating_spacing < 1:  # Physical constraint check
-                    angle = np.arcsin(m * wavelength / self.grating_spacing)
-                    
-                    # Apply a narrow peak at the angle (similar to delta function approximation)
-                    # Width of peak is narrower for higher-order diffraction
-                    peak_width = 0.01 / m
-                    
-                    # Create a sharp Gaussian peak around the maximum position
-                    peak_intensity = spectral_intensity * np.exp(-0.5 * ((angles - angle) / peak_width) ** 2)
-                    total_intensity += peak_intensity
-                    
-                    # For negative orders (symmetry)
-                    if m > 0:
-                        neg_angle = np.arcsin(-m * wavelength / self.grating_spacing)
-                        peak_intensity = spectral_intensity * np.exp(-0.5 * ((angles - neg_angle) / peak_width) ** 2)
-                        total_intensity += peak_intensity
-        
-        # Normalize
-        if np.max(total_intensity) > 0:
-            total_intensity = total_intensity / np.max(total_intensity)
-            
-        return angles, total_intensity 
+        # Physical constants
+        h = constants.Planck
+        c = constants.speed_of_light
+        k_B = constants.Boltzmann
+
+        # Grating spacing comes in meters, convert to nm
+        d = self.grating_spacing
+
+        wavelengths = np.abs(np.sin(angles)) * d
+
+        intensity = self.planck_spectrum(wavelengths, temperature)
+
+        return intensity 

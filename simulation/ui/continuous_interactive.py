@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, RadioButtons
 from matplotlib.gridspec import GridSpec
 from functools import partial
 
 from simulation.core.physics import ContinuousSpectrumPhysics
 from simulation.core.config import DEFAULT_GRATING_SPACING
+from simulation.core.config import DEFAULT_NUM_POINTS
 
 
 class ContinuousSpectrumSimulation:
@@ -17,7 +18,7 @@ class ContinuousSpectrumSimulation:
         self.grating_spacing = DEFAULT_GRATING_SPACING
         self.temperature = 3000  # Starting temperature in Kelvin
         self.num_wavelengths = 200  # Number of wavelength samples
-        self.max_order = 1  # Only consider first order diffraction
+        self.current_order = 1  # Current diffraction order to display
         self.wavelength_range = (380e-9, 3000e-9)  # Extended range up to 3000nm
         
         # Create physics model
@@ -33,7 +34,7 @@ class ContinuousSpectrumSimulation:
         self.fig = plt.figure(figsize=(12, 14), constrained_layout=False)
         
         # Use GridSpec with spacings
-        gs = GridSpec(3, 1, figure=self.fig, height_ratios=[2, 2, 0.6], hspace=0.4)
+        gs = GridSpec(3, 1, figure=self.fig, height_ratios=[2, 2, 0.8], hspace=0.4)
         
         # Create axes
         self.ax_spectrum = self.fig.add_subplot(gs[0])  # Spectrum plot
@@ -52,6 +53,13 @@ class ContinuousSpectrumSimulation:
             transform=self.ax_spectrum.transAxes,
             bbox=dict(facecolor='white', alpha=0.7, pad=5)
         )
+        
+        # Add equation text to the diffraction pattern plot
+        self.equation_text = self.ax_diffraction.text(
+            0.5, 0.02, "", fontsize=9, ha='center', va='bottom',
+            transform=self.ax_diffraction.transAxes,
+            bbox=dict(facecolor='white', alpha=0.7, pad=5)
+        )
 
     def _create_controls(self):
         """Create sliders for interaction."""
@@ -61,16 +69,16 @@ class ContinuousSpectrumSimulation:
         slider_left = 0.25
         
         # Position sliders in the controls area
-        ax_grating = plt.axes([slider_left, 0.11, slider_width, slider_height])
-        ax_temp = plt.axes([slider_left, 0.07, slider_width, slider_height])
+        ax_grating = plt.axes([slider_left, 0.15, slider_width, slider_height])
+        ax_temp = plt.axes([slider_left, 0.11, slider_width, slider_height])
         ax_order = plt.axes([slider_left, 0.03, slider_width, slider_height])
-
+        
         self.grating_slider = Slider(ax_grating, "Grating Spacing (µm)", 0.5, 10.0, 
                                     valinit=self.grating_spacing * 1e6)
         self.temp_slider = Slider(ax_temp, "Temperature (K)", 1000, 10000, 
                                  valinit=self.temperature, valstep=100)
-        self.order_slider = Slider(ax_order, "Max Order", 1, 3, 
-                                  valinit=self.max_order, valstep=1)
+        self.order_slider = Slider(ax_order, "Order m", 1, 3, 
+                                  valinit=self.current_order, valstep=1)
         
         # Connect callbacks
         self.grating_slider.on_changed(self._update)
@@ -98,13 +106,21 @@ class ContinuousSpectrumSimulation:
         self._plot_spectrum(wavelengths, intensities)
         
         # Calculate and plot the diffraction pattern
-        self._plot_diffraction_pattern(spectrum_function)
+        self._plot_diffraction_pattern()
         
         # Update title information
         self._update_title()
         
+        # Update equation text
+        self._update_equation_text()
+        
         # Refresh the figure
         self.fig.canvas.draw_idle()
+
+    def _update_equation_text(self):
+        """Update the equation text."""
+        eq_text = r"$I_m(\theta) = \frac{2\pi c^2 h m^5}{d^5 \sin^5\theta}\frac{1}{e^{\frac{h c m}{d \sin\theta k T}} - 1}$"
+        self.equation_text.set_text(eq_text)
 
     def _plot_spectrum(self, wavelengths, intensities):
         """Plot the wavelength spectrum."""
@@ -144,15 +160,18 @@ class ContinuousSpectrumSimulation:
         ax.axvline(x=750, color='gray', linestyle='--', alpha=0.5)
         ax.text(760, 0.95, 'IR', color='gray', fontsize=8)
 
-    def _plot_diffraction_pattern(self, spectrum_function):
-        """Calculate and plot the diffraction pattern for the current spectrum."""
-        # Calculate the diffraction pattern
-        angles, intensity = self.physics.calculate_continuous_spectrum_pattern(
-            self.wavelength_range, 
-            self.num_wavelengths,
-            spectrum_function,
-            max_order=self.max_order
+    def _plot_diffraction_pattern(self):
+        """Calculate and plot diffraction pattern using equation 3 from eqs2.md."""
+        # Create angle array
+        angles = np.linspace(-np.pi/2, np.pi/2, DEFAULT_NUM_POINTS)
+        
+        # Use equation 3 to calculate the pattern for the selected order
+        intensity = self.physics.calculate_order_m_pattern(
+            angles,
+            self.temperature,
+            self.current_order
         )
+        print(self.temperature, self.current_order, len(angles))
         
         # Plot the diffraction pattern
         self.ax_diffraction.plot(angles, intensity, 'k-', linewidth=2)
@@ -171,7 +190,7 @@ class ContinuousSpectrumSimulation:
         
         # Set title
         self.ax_diffraction.set_title(
-            f"First-Order Diffraction Pattern (Order: {self.max_order})", fontsize=12
+            f"Diffraction Pattern Using Equation 3 (Order m = {self.current_order})", fontsize=12
         )
 
     def _update_title(self):
@@ -179,7 +198,7 @@ class ContinuousSpectrumSimulation:
         title_str = (
             f"Grating spacing: {self.grating_spacing*1e6:.1f} μm, "
             f"Temperature: {self.temperature} K, "
-            f"Max Order: {self.max_order}"
+            f"Order m: {self.current_order}"
         )
         self.title_text.set_text(title_str)
 
@@ -188,7 +207,7 @@ class ContinuousSpectrumSimulation:
         # Get values from sliders
         self.grating_spacing = self.grating_slider.val * 1e-6  # Convert from µm to m
         self.temperature = self.temp_slider.val
-        self.max_order = int(self.order_slider.val)
+        self.current_order = int(self.order_slider.val)
         
         # Update physics model parameters
         self.physics.grating_spacing = self.grating_spacing
